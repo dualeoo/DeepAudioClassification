@@ -1,14 +1,15 @@
 # -*- coding: utf-8 -*-
-from subprocess import Popen, PIPE, STDOUT
+import errno
 import os
-from PIL import Image
+from subprocess import Popen, PIPE, STDOUT
+
 import eyed3
 
-from sliceSpectrogram import createSlicesFromSpectrograms
 from audioFilesTools import isMono, getGenre
+from config import pixelPerSecond
 from config import rawDataPath
 from config import spectrogramsPath
-from config import pixelPerSecond
+from sliceSpectrogram import createSlicesFromSpectrograms
 
 #Tweakable parameters
 desiredSize = 128
@@ -29,7 +30,7 @@ def createSpectrogram(filename,newFilename):
 	p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, cwd=currentPath)
 	output, errors = p.communicate()
 	if errors:
-		print errors
+		print(errors)
 
 	#Create spectrogram
 	filename.replace(".mp3","")
@@ -37,7 +38,7 @@ def createSpectrogram(filename,newFilename):
 	p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, cwd=currentPath)
 	output, errors = p.communicate()
 	if errors:
-		print errors
+		print(errors)
 
 	#Remove tmp mono track
 	os.remove("/tmp/{}.mp3".format(newFilename))
@@ -59,7 +60,7 @@ def createSpectrogramsFromAudio():
 
 	#Rename files according to genre
 	for index,filename in enumerate(files):
-		print "Creating spectrogram for file {}/{}...".format(index+1,nbFiles)
+		print("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
 		fileGenre = getGenre(rawDataPath+filename)
 		genresID[fileGenre] = genresID[fileGenre] + 1 if fileGenre in genresID else 1
 		fileID = genresID[fileGenre]
@@ -68,10 +69,10 @@ def createSpectrogramsFromAudio():
 
 #Whole pipeline .mp3 -> .png slices
 def createSlicesFromAudio():
-	print "Creating spectrograms..."
+	print("Creating spectrograms...")
 	createSpectrogramsFromAudio()
-	print "Spectrograms created!"
+	print("Spectrograms created!")
 
-	print "Creating slices..."
+	print("Creating slices...")
 	createSlicesFromSpectrograms(desiredSize)
-	print "Slices created!"
+	print("Slices created!")

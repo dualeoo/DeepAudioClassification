@@ -4,15 +4,17 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+import errno
 import os
-from PIL import Image
-from random import shuffle
-import numpy as np
 import pickle
+from random import shuffle
 
-from imageFilesTools import getImageData
+import numpy as np
+
 from config import datasetPath
 from config import slicesPath
+from imageFilesTools import getImageData
+
 
 #Creates name of dataset from parameters
 def getDatasetName(nbPerGenre, sliceSize):
@@ -104,7 +106,7 @@ def createDatasetFromSlices(nbPerGenre, genres, sliceSize, validationRatio, test
     trainNb = len(X)-(validationNb + testNb)
 
     #Prepare for Tflearn at the same time
-    train_X = np.array(X[:trainNb]).reshape([-1, sliceSize, sliceSize, 1])
+    train_X = np.array(X[:trainNb]).reshape([-1, sliceSize, sliceSize, 1])  # Ques what is reshape?
     train_y = np.array(y[:trainNb])
     validation_X = np.array(X[trainNb:trainNb+validationNb]).reshape([-1, sliceSize, sliceSize, 1])
     validation_y = np.array(y[trainNb:trainNb+validationNb])

@@ -3,6 +3,7 @@ spectrogramsPath = "Data/Spectrograms/"
 slicesPath = "Data/Slices/"
 datasetPath = "Data/Dataset/"
 rawDataPath = "Data/Raw/"
+trainDataLabel = "Data/trainLabel.csv"
 
 #Spectrogram resolution
 pixelPerSecond = 50
