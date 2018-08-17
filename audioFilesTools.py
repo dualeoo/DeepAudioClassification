@@ -21,10 +21,11 @@ def isMono(filename):
     return audiofile.info.mode == 'Mono'
 
 
-def getGenre(filename):
+def getGenre(filepath):
     # TODOx re-implement
     # TODO have getGerne for test case
     # audiofile = eyed3.load(filename)
+    filename = (filepath.split("/"))[2]
     if labelDic[filename]:
         return labelDic[filename]
     else:

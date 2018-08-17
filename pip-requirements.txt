@@ -1,3 +1,7 @@
 eyed3
 sox
 tflearn
+libmagic
+tensorflow
+scipy
+h5py

@@ -1,22 +1,20 @@
 # -*- coding: utf-8 -*-
+import argparse
+import os
 import random
 import string
-import os
 import sys
-import numpy as np
 
-from model import createModel
-from datasetTools import getDataset
-from config import slicesPath
 from config import batchSize
 from config import filesPerGenre
 from config import nbEpoch
-from config import validationRatio, testRatio
 from config import sliceSize
-
+from config import slicesPath
+from config import validationRatio, testRatio
+from datasetTools import getDataset
+from model import createModel
 from songToData import createSlicesFromAudio
 
-import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument("mode", help="Trains or tests the CNN", nargs='+', choices=["train","test","slice"])
 args = parser.parse_args()
