@@ -6,13 +6,11 @@ from subprocess import Popen, PIPE, STDOUT
 import eyed3
 
 from audioFilesTools import isMono, getGenre
-from config import pixelPerSecond
-from config import rawDataPath
-from config import spectrogramsPath
+from config import spectrogramsPath, desiredSliceSize, pixelPerSecond, rawDataPath
 from sliceSpectrogram import createSlicesFromSpectrograms
 
 # Tweakable parameters
-desiredSize = 128
+
 
 # Define
 currentPath = os.path.dirname(os.path.realpath(__file__))
@@ -83,5 +81,5 @@ def createSlicesFromAudio():
     print("Spectrograms created!")
 
     print("Creating slices...")
-    createSlicesFromSpectrograms(desiredSize)
+    createSlicesFromSpectrograms(desiredSliceSize)
     print("Slices created!")

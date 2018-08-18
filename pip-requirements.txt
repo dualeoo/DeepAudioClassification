@@ -5,3 +5,5 @@ libmagic
 tensorflow
 scipy
 h5py
+msgpack
+Pillow

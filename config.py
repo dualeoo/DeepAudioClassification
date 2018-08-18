@@ -3,7 +3,7 @@ spectrogramsPath = "Data/Spectrograms/"
 slicesPath = "Data/Slices/"
 datasetPath = "Data/Dataset/"
 rawDataPath = "Data/Raw/"
-trainDataLabel = "Data/trainLabel.csv"
+trainDataLabel = "Data/train.csv"
 
 #Spectrogram resolution
 pixelPerSecond = 50
@@ -20,3 +20,5 @@ testRatio = 0.1
 batchSize = 128
 learningRate = 0.001
 nbEpoch = 20
+
+desiredSliceSize = pixelPerSecond * 3
