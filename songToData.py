@@ -80,7 +80,7 @@ def getNewFileName(filename, genresID, index, mode, pathToAudio):
         newFilename = fileGenre + "_" + str(fileID)
     elif "sliceTest" in mode:
         fileID = index + 1
-        newFilename = "unknownGenre" + "_" + str(fileID)
+        newFilename = "unknownGenre" + "_" + str(fileID) + "_" + filename
     return newFilename
 
 
