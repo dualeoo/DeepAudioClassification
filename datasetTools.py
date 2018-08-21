@@ -105,7 +105,7 @@ def saveDataset(train_X, train_y, validation_X, validation_y, test_X, test_y, nb
 
     if mode == "testReal":
         datasetName = getRealTestDatasetName(sliceSize)
-        pickle.dump(test_real_x, open("{}{}.p".format(datasetPath, datasetName), "wb"))
+        pickle.dump(test_real_x, open("{}{}.p".format(datasetPath, datasetName), "wb"), protocol=4)
     else:
         datasetName = getDatasetName(nbPerGenre, sliceSize)
         pickle.dump(train_X, open("{}train_X_{}.p".format(datasetPath, datasetName), "wb"))
@@ -129,8 +129,12 @@ def createDatasetFromSlices(slicesPerGenre, genres, sliceSize, validationRatio, 
         # Get slices in genre subfolder
         file_names = os.listdir(slicesPath + genre)
         file_names = [filename for filename in file_names if filename.endswith('.png')]
+        number_of_files = len(file_names)
 
+        file_no = 1;
         for filename in file_names:
+            print("Adding to dataset file: {}/{} ({})".format(file_no, number_of_files, filename))
+            file_no += 1
             imgData = getImageData(slicesPath + genre + "/" + filename, sliceSize)
             label = [0. for g in genres]
             data.append((imgData, label, filename))

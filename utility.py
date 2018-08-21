@@ -6,9 +6,9 @@ from config import realTestDataFileNamesPath, predictResultPath
 def save_predict_result(predictResults):
     # TODOx task
     with open(predictResultPath, 'w') as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         for result in predictResults:
-            writer.writerows(result)
+            writer.writerow([result])
 
 
 def save_file_names(file_names):
