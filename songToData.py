@@ -6,7 +6,7 @@ from subprocess import Popen, PIPE, STDOUT
 import eyed3
 
 from audioFilesTools import isMono, getGenre
-from config import spectrogramsPath, desiredSliceSize, pixelPerSecond, rawDataPath
+from config import desiredSliceSize, pixelPerSecond
 from sliceSpectrogram import createSlicesFromSpectrograms
 
 # Tweakable parameters
@@ -20,24 +20,24 @@ eyed3.log.setLevel("ERROR")
 
 
 # Create spectrogram from mp3 files
-def createSpectrogram(filename, newFilename):
+def createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath):
     # Create temporary mono track if needed
     # temp = os
     # temp2 = sys.path
     # sys.path.append("C:\Program Files (x86)\sox-14-4-2")
-    mono = isMono(rawDataPath + filename)
+    mono = isMono(pathToAudio + filename)
     if mono:
-        command = "cp '{}' '/tmp/{}.mp3'".format(rawDataPath + filename, newFilename)
+        command = "cp '{}' '/tmp/{}.mp3'".format(pathToAudio + filename, newFilename)
     else:
         # command = "sox '{}' '/tmp/{}.mp3' remix 1,2".format(rawDataPath + filename, newFilename)
-        command = "sox '{}' '/tmp/{}.mp3' remix 1,2".format(rawDataPath + filename, newFilename)
+        command = "sox '{}' '/tmp/{}.mp3' remix 1,2".format(pathToAudio + filename, newFilename)
     p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, cwd=currentPath)
     output, errors = p.communicate()
     if errors:
         print(errors)
 
     # Create spectrogram
-    filename.replace(".mp3", "")
+    # filename.replace(".mp3", "") # TODOpro why do this? I comment out it. Be careful.
     command = "sox '/tmp/{}.mp3' -n spectrogram -Y 200 -X {} -m -r -o '{}.png'".format(newFilename, pixelPerSecond,
                                                                                        spectrogramsPath + newFilename)
     p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, cwd=currentPath)
@@ -50,9 +50,9 @@ def createSpectrogram(filename, newFilename):
 
 
 # Creates .png whole spectrograms from mp3 files
-def createSpectrogramsFromAudio():
+def createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode):
     genresID = dict()
-    files = os.listdir(rawDataPath)
+    files = os.listdir(pathToAudio)
     files = [file for file in files if file.endswith(".mp3")]
     nbFiles = len(files)
 
@@ -67,19 +67,29 @@ def createSpectrogramsFromAudio():
     # Rename files according to genre
     for index, filename in enumerate(files):
         print("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
-        fileGenre = getGenre(rawDataPath + filename)
+        newFilename = getNewFileName(filename, genresID, index, mode, pathToAudio)
+        createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath)
+
+
+def getNewFileName(filename, genresID, index, mode, pathToAudio):
+    newFilename = ""
+    if "slice" in mode:
+        fileGenre = getGenre(pathToAudio + filename)
         genresID[fileGenre] = genresID[fileGenre] + 1 if fileGenre in genresID else 1
         fileID = genresID[fileGenre]
         newFilename = fileGenre + "_" + str(fileID)
-        createSpectrogram(filename, newFilename)
+    elif "sliceTest" in mode:
+        fileID = index + 1
+        newFilename = "unknownGenre" + "_" + str(fileID)
+    return newFilename
 
 
 # Whole pipeline .mp3 -> .png slices
-def createSlicesFromAudio():
+def createSlicesFromAudio(pathToAudio, spectrogramsPath, mode, slicesPath):
     print("Creating spectrograms...")
-    createSpectrogramsFromAudio()
+    createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode)
     print("Spectrograms created!")
 
     print("Creating slices...")
-    createSlicesFromSpectrograms(desiredSliceSize)
+    createSlicesFromSpectrograms(desiredSliceSize, spectrogramsPath, slicesPath)
     print("Slices created!")

@@ -1,8 +1,11 @@
 #Define paths for files
 spectrogramsPath = "Data/Spectrograms/"
 slicesPath = "Data/Slices/"
+slicesTestPath = "Data/SlicesTest/"
 datasetPath = "Data/Dataset/"
 rawDataPath = "Data/Raw/"
+testDataPath = "Data/Test/"
+spectrogramsTestPath = "Data/SpectrogramsTest/"
 trainDataLabel = "Data/train.csv"
 
 #Spectrogram resolution
