@@ -86,8 +86,8 @@ if "testReal" in args.mode:
     print("Mode = testReal")
     # Create or load new dataset
     genre = nameOfUnknownGenre
-    file_names = os.listdir(slicesPath + genre)
-    number_of_slices_to_score = percentage_of_real_test_slices * len(file_names)
+    file_names = os.listdir(slicesTestPath + genre)
+    number_of_slices_to_score = int(percentage_of_real_test_slices * len(file_names))
     print(
         "number_of_slices_to_score = {} ({}%)".format(number_of_slices_to_score, percentage_of_real_test_slices * 100))
     X = getDataset(genres=genres, sliceSize=sliceSize, mode="testReal", slicesPath=slicesTestPath,
@@ -98,7 +98,7 @@ if "testReal" in args.mode:
     model.load(path_to_model)
     print("    Weights loaded! ✅")
 
-    predictResult = model.predict(X)
+    predictResult = model.predict_label(X)
     print("The result: {}".format(predictResult))
     save_predict_result(predictResult)
     print("[+] Finish prediction!")
