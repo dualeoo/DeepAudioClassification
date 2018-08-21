@@ -6,7 +6,7 @@ from subprocess import Popen, PIPE, STDOUT
 import eyed3
 
 from audioFilesTools import isMono, getGenre
-from config import desiredSliceSize, pixelPerSecond
+from config import desiredSliceSize, pixelPerSecond, nameOfUnknownGenre
 from sliceSpectrogram import createSlicesFromSpectrograms
 
 # Tweakable parameters
@@ -80,7 +80,7 @@ def getNewFileName(filename, genresID, index, mode, pathToAudio):
         newFilename = fileGenre + "_" + str(fileID)
     elif "sliceTest" in mode:
         fileID = index + 1
-        newFilename = "unknownGenre" + "_" + str(fileID) + "_" + filename
+        newFilename = nameOfUnknownGenre + "_" + str(fileID) + "_" + filename
     return newFilename
 
 

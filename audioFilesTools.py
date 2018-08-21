@@ -3,11 +3,11 @@ import csv
 
 import eyed3
 
-from config import trainDataLabel
+from config import trainDataLabelPath
 
 labelDic = dict()
 
-with open(trainDataLabel, 'r') as f:
+with open(trainDataLabelPath, 'r') as f:
     reader = csv.reader(f)
     for row in reader:
         labelDic[row[0]] = row[1]
