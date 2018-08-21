@@ -14,6 +14,6 @@ def save_predict_result(predictResults):
 def save_file_names(file_names):
     # TODOx
     with open(realTestDataFileNamesPath, 'w') as f:
-        writer = csv.writer(f)
+        writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         for file_name in file_names:
-            writer.writerows([file_name])
+            writer.writerow([file_name])

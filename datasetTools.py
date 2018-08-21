@@ -103,7 +103,7 @@ def saveDataset(train_X, train_y, validation_X, validation_y, test_X, test_y, nb
 
     print("[+] Saving dataset... ")
 
-    if mode == "realTest":
+    if mode == "testReal":
         datasetName = getRealTestDatasetName(sliceSize)
         pickle.dump(test_real_x, open("{}{}.p".format(datasetPath, datasetName), "wb"))
     else:

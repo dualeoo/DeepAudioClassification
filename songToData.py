@@ -6,7 +6,7 @@ from subprocess import Popen, PIPE, STDOUT
 import eyed3
 
 from audioFilesTools import isMono, getGenre
-from config import desiredSliceSize, pixelPerSecond, nameOfUnknownGenre
+from config import desiredSliceSize, pixelPerSecond, nameOfUnknownGenre, numberOfRawFilesToProcess
 from sliceSpectrogram import createSlicesFromSpectrograms
 
 # Tweakable parameters
@@ -65,10 +65,17 @@ def createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode):
                 raise
 
     # Rename files according to genre
-    for index, filename in enumerate(files):
-        print("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
-        newFilename = getNewFileName(filename, genresID, index, mode, pathToAudio)
-        createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath)
+    if numberOfRawFilesToProcess == -1:
+        for index, filename in enumerate(files):
+            print("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
+            newFilename = getNewFileName(filename, genresID, index, mode, pathToAudio)
+            createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath)
+    else:
+        for index, filename in enumerate(files):
+            print("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
+            newFilename = getNewFileName(filename, genresID, index, mode, pathToAudio)
+            createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath)
+            if index >= numberOfRawFilesToProcess: break
 
 
 def getNewFileName(filename, genresID, index, mode, pathToAudio):

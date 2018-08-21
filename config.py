@@ -9,6 +9,8 @@ spectrogramsTestPath = "Data/SpectrogramsTest/"
 trainDataLabelPath = "Data/train.csv"
 realTestDataFileNamesPath = "Data/realTestNames.csv"
 predictResultPath = "Data/realTestNames.csv"
+modelPath = "model/"
+
 
 #Spectrogram resolution
 pixelPerSecond = 50
@@ -27,6 +29,8 @@ learningRate = 0.001
 nbEpoch = 20
 
 desiredSliceSize = pixelPerSecond * 3
+numberOfRawFilesToProcess = 50
 
 nameOfUnknownGenre = "unknownGenre"
 realTestDatasetPrefix = "testReal"
+modelName = "musicDNN.tflearn"

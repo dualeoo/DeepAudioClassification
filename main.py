@@ -5,7 +5,7 @@ import random
 import string
 import sys
 
-from config import batchSize, slicesPerGenre, nbEpoch, sliceSize, validationRatio, testRatio
+from config import batchSize, slicesPerGenre, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, modelName
 from config import slicesPath, slicesTestPath, rawDataPath, testDataPath, spectrogramsPath, spectrogramsTestPath
 from datasetTools import getDataset
 from model import createModel
@@ -43,8 +43,10 @@ nbClasses = len(genres)
 
 # Create model
 model = createModel(nbClasses, sliceSize)
+path_to_model = '{}{}'.format(modelPath, modelName)
 
-if "train" == args.mode:
+if "train" in args.mode:
+    print("Mode = train")
     # Create or load new dataset
     train_X, train_y, validation_X, validation_y = getDataset(slicesPerGenre, genres, sliceSize, validationRatio,
                                                               testRatio, "train", slicesPath)
@@ -61,32 +63,37 @@ if "train" == args.mode:
 
     # Save trained model
     print("[+] Saving the weights...")
-    model.save('musicDNN.tflearn')
+    model.save(path_to_model)
     print("[+] Weights saved! ✅💾")
+    sys.exit()
 
-if "test" == args.mode:
+if "test" in args.mode:
     # Create or load new dataset
-    test_X, test_y = getDataset(slicesPerGenre, genres, sliceSize, validationRatio, testRatio, args.mode, slicesPath)
+    print("Mode = test")
+    test_X, test_y = getDataset(slicesPerGenre, genres, sliceSize, validationRatio, testRatio, "test", slicesPath)
 
     # Load weights
     print("[+] Loading weights...")
-    model.load('musicDNN.tflearn')
+    model.load(path_to_model)
     print("    Weights loaded! ✅")
 
     testAccuracy = model.evaluate(test_X, test_y)[0]
     print("[+] Test accuracy: {} ".format(testAccuracy))
+    sys.exit()
 
-if "testReal" == args.mode:
+if "testReal" in args.mode:
+    print("Mode = testReal")
     # Create or load new dataset
-    X = getDataset(genres=genres, sliceSize=sliceSize, mode=args.mode, slicesPath=slicesTestPath,
+    X = getDataset(genres=genres, sliceSize=sliceSize, mode="testReal", slicesPath=slicesTestPath,
                    nbPerGenre=None, testRatio=None, validationRatio=None)
 
     # Load weights
     print("[+] Loading weights...")
-    model.load('musicDNN.tflearn')
+    model.load(path_to_model)
     print("    Weights loaded! ✅")
 
     predictResult = model.predict(X)
     print("The result: {}".format(predictResult))
     save_predict_result(predictResult)
     print("[+] Finish prediction!")
+    sys.exit()
