@@ -41,7 +41,7 @@ def getDataset(nbPerGenre, genres, sliceSize, validationRatio, testRatio, mode, 
         if not os.path.isfile(datasetPath + real_test_dataset_name + ".p"):
             print("[+] Creating dataset with of size {}... ⌛️".format(sliceSize))
             createDatasetFromSlices(genres=genres, sliceSize=sliceSize, mode=mode, slicesPath=slicesPath,
-                                    slicesPerGenre=None, testRatio=None, validationRatio=None)
+                                    slicesPerGenre=nbPerGenre, testRatio=None, validationRatio=None)
         else:
             print("[+] Using existing dataset")
 
@@ -129,9 +129,11 @@ def createDatasetFromSlices(slicesPerGenre, genres, sliceSize, validationRatio, 
         # Get slices in genre subfolder
         file_names = os.listdir(slicesPath + genre)
         file_names = [filename for filename in file_names if filename.endswith('.png')]
-        number_of_files = len(file_names)
+        shuffle(file_names)
+        file_names = file_names[:slicesPerGenre]
+        number_of_files = slicesPerGenre
 
-        file_no = 1;
+        file_no = 1
         for filename in file_names:
             print("Adding to dataset file: {}/{} ({})".format(file_no, number_of_files, filename))
             file_no += 1

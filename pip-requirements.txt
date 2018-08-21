@@ -7,3 +7,4 @@ scipy
 h5py
 msgpack
 Pillow
+numpy==1.14.5

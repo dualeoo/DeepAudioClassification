@@ -5,7 +5,8 @@ import random
 import string
 import sys
 
-from config import batchSize, slicesPerGenre, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, modelName
+from config import batchSize, slicesPerGenre, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, modelName, \
+    percentage_of_real_test_slices, nameOfUnknownGenre
 from config import slicesPath, slicesTestPath, rawDataPath, testDataPath, spectrogramsPath, spectrogramsTestPath
 from datasetTools import getDataset
 from model import createModel
@@ -84,8 +85,13 @@ if "test" in args.mode:
 if "testReal" in args.mode:
     print("Mode = testReal")
     # Create or load new dataset
+    genre = nameOfUnknownGenre
+    file_names = os.listdir(slicesPath + genre)
+    number_of_slices_to_score = percentage_of_real_test_slices * len(file_names)
+    print(
+        "number_of_slices_to_score = {} ({}%)".format(number_of_slices_to_score, percentage_of_real_test_slices * 100))
     X = getDataset(genres=genres, sliceSize=sliceSize, mode="testReal", slicesPath=slicesTestPath,
-                   nbPerGenre=None, testRatio=None, validationRatio=None)
+                   nbPerGenre=number_of_slices_to_score, testRatio=None, validationRatio=None)
 
     # Load weights
     print("[+] Loading weights...")

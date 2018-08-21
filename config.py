@@ -20,6 +20,7 @@ sliceSize = 128
 
 #Dataset parameters
 slicesPerGenre = 1000  # This is the number of slices per gerne
+percentage_of_real_test_slices = 0.5
 validationRatio = 0.3
 testRatio = 0.1
 
