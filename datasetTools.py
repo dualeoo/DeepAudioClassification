@@ -197,12 +197,12 @@ def save_file_names(file_names, real_test_dataset_name):
 
 
 def create_real_test_dataset_from_slices(slice_size, files_for_this_batch, real_test_dataset_name):
-    number_of_files_for_this_batch = len(files_for_this_batch)
+    # number_of_files_for_this_batch = len(files_for_this_batch)
     data = []
     file_no = 1
 
     for filename in files_for_this_batch:
-        print("Adding to dataset file: {}/{} ({})".format(file_no, number_of_files_for_this_batch, filename))
+        # print("Adding to dataset file: {}/{} ({})".format(file_no, number_of_files_for_this_batch, filename))
         file_no += 1
         img_data = get_image_data(slicesTestPath + nameOfUnknownGenre + "/" + filename, slice_size)  # TODOx look inside
         data.append((img_data, filename))

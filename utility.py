@@ -1,3 +1,8 @@
+import csv
+
+from config import predictResultPath
+
+
 def process_file_name(file_name):
     split_result = file_name.split("_")
     return split_result[2], split_result[3]  # TODOx
@@ -23,3 +28,34 @@ def preprocess_predict_result(predict_results):
     for result in predict_results:
         new_result.append(result[0])
     return new_result  # TODOx
+
+
+def finalize_result(final_result):
+    file_names = final_result.keys()
+    for filename in file_names:
+        result = final_result[filename]
+        genre = find_max_genre(result)
+        final_result[filename] = genre
+    return final_result  # TODOx
+
+
+def save_final_result(final_result):
+    with open(predictResultPath, mode='w') as f:
+        csv_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        for file_name, genre in final_result:
+            csv_writer.writerow([file_name, genre])
+
+
+def find_max_genre(result):
+    genres = result.keys()
+    first_genre = genres[0]
+    final_genre = first_genre
+    max_freq = result[first_genre]
+
+    for genre in genres:
+        freq = result[genre]
+        if freq > max_freq:
+            final_genre = genre
+            max_freq = freq
+
+    return final_genre  # TODOx
