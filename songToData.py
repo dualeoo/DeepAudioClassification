@@ -6,7 +6,8 @@ from subprocess import Popen, PIPE, STDOUT
 import eyed3
 
 from audioFilesTools import isMono, getGenre
-from config import desiredSliceSize, pixelPerSecond, nameOfUnknownGenre, numberOfRawFilesToProcess
+from config import desiredSliceSize, pixelPerSecond, nameOfUnknownGenre, numberOfTrainRawFilesToProcessInDebugMode
+from main import debug
 from sliceSpectrogram import createSlicesFromSpectrograms
 
 # Tweakable parameters
@@ -65,17 +66,21 @@ def createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode):
                 raise
 
     # Rename files according to genre
-    if numberOfRawFilesToProcess == -1:
+    if not debug:
         for index, filename in enumerate(files):
-            print("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
-            newFilename = getNewFileName(filename, genresID, index, mode, pathToAudio)
-            createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath)
+            get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio,
+                                                 spectrogramsPath)
     else:
         for index, filename in enumerate(files):
-            print("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
-            newFilename = getNewFileName(filename, genresID, index, mode, pathToAudio)
-            createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath)
-            if index >= numberOfRawFilesToProcess: break
+            get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio,
+                                                 spectrogramsPath)
+            if index >= numberOfTrainRawFilesToProcessInDebugMode: break
+
+
+def get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio, spectrogramsPath):
+    print("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
+    newFilename = getNewFileName(filename, genresID, index, mode, pathToAudio)
+    createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath)
 
 
 def getNewFileName(filename, genresID, index, mode, pathToAudio):

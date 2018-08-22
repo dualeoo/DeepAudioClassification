@@ -31,7 +31,7 @@ def preprocess_predict_result(predict_results):
 
 
 def finalize_result(final_result):
-    file_names = final_result.keys()
+    file_names = list(final_result.keys())
     for filename in file_names:
         result = final_result[filename]
         genre = find_max_genre(result)
@@ -42,12 +42,12 @@ def finalize_result(final_result):
 def save_final_result(final_result):
     with open(predictResultPath, mode='w') as f:
         csv_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
-        for file_name, genre in final_result:
+        for file_name, genre in final_result.items():
             csv_writer.writerow([file_name, genre])
 
 
 def find_max_genre(result):
-    genres = result.keys()
+    genres = list(result.keys())
     first_genre = genres[0]
     final_genre = first_genre
     max_freq = result[first_genre]

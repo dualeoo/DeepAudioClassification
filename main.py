@@ -6,36 +6,50 @@ import string
 import sys
 
 from config import batchSize, slicesPerGenre, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, modelName, \
-    nameOfUnknownGenre
-from config import slicesPath, slicesTestPath, rawDataPath, testDataPath, spectrogramsPath, spectrogramsTestPath
+    nameOfUnknownGenre, slicesPath, slicesTestPath, rawDataPath, testDataPath, spectrogramsPath, spectrogramsTestPath, \
+    pixelPerSecond, desiredSliceSize, length_train_id, number_of_batches_debug, learningRate
 from datasetTools import get_dataset, get_real_test_dataset
 from model import createModel
 from songToData import createSlicesFromAudio
 from utility import save_predict_result, preprocess_predict_result, finalize_result, save_final_result
 
+parser = argparse.ArgumentParser()
+parser.add_argument("--debug", default=False, action="store_true")
+parser.add_argument("mode", help="Trains or tests the CNN", nargs='+', choices=["train",
+                                                                                "test",
+                                                                                "slice",
+                                                                                "sliceTest",
+                                                                                "testReal"])
+args = parser.parse_args()
+mode_arg = args.mode
+debug = args.debug
+
+
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("mode", help="Trains or tests the CNN", nargs='+', choices=["train",
-                                                                                    "test",
-                                                                                    "slice",
-                                                                                    "sliceTest",
-                                                                                    "testReal"])
-    args = parser.parse_args()
+
 
     print("--------------------------")
-    print("| ** Config ** ")
+    print("| *** Config *** ")
+    print("| Pixel per second: {}".format(pixelPerSecond))
+    print("| Cut image into slice of {}px width".format(desiredSliceSize))
+    print("| Resize cut slice to {}px x {}px".format(sliceSize, sliceSize))
+    print("|")
+    print("| Batch size: {}".format(batchSize))
+    print("| Number of epoch: {}".format(nbEpoch))
+    print("| Learning rate: {}".format(learningRate))
+    print("|")
     print("| Validation ratio: {}".format(validationRatio))
     print("| Test ratio: {}".format(testRatio))
+    print("|")
     print("| Slices per genre: {}".format(slicesPerGenre))
-    print("| Slice size: {}".format(sliceSize))  # TODO be careful, this sliceSize is different from desiredSliceSize
     print("--------------------------")
 
-    if "slice" in args.mode:
-        createSlicesFromAudio(rawDataPath, spectrogramsPath, args.mode, slicesPath)
+    if "slice" in mode_arg:
+        createSlicesFromAudio(rawDataPath, spectrogramsPath, mode_arg, slicesPath)
         sys.exit()
 
-    if "sliceTest" in args.mode:
-        createSlicesFromAudio(testDataPath, spectrogramsTestPath, args.mode, slicesTestPath)
+    if "sliceTest" in mode_arg:
+        createSlicesFromAudio(testDataPath, spectrogramsTestPath, mode_arg, slicesTestPath)
         sys.exit()
 
     # List genres
@@ -47,7 +61,7 @@ if __name__ == "__main__":
     model = createModel(nbClasses, sliceSize)
     path_to_model = '{}{}'.format(modelPath, modelName)
 
-    if "train" in args.mode:
+    if "train" in mode_arg:
         print("Mode = train")
         # Create or load new dataset
         train_X, train_y, validation_X, validation_y = get_dataset(slicesPerGenre, genres, sliceSize, validationRatio,
@@ -55,7 +69,7 @@ if __name__ == "__main__":
 
         # Define run id for graphs
         run_id = "MusicGenres - " + str(batchSize) + " " + ''.join(
-            random.SystemRandom().choice(string.ascii_uppercase) for _ in range(10))
+            random.SystemRandom().choice(string.ascii_uppercase) for _ in range(length_train_id))
 
         # Train the model
         print("[+] Training the model...")
@@ -69,7 +83,7 @@ if __name__ == "__main__":
         print("[+] Weights saved! ✅💾")
         sys.exit()
 
-    if "test" in args.mode:
+    if "test" in mode_arg:
         # Create or load new dataset
         print("Mode = test")
         test_X, test_y = get_dataset(slicesPerGenre, genres, sliceSize, validationRatio, testRatio, "test")
@@ -83,7 +97,7 @@ if __name__ == "__main__":
         print("[+] Test accuracy: {} ".format(testAccuracy))
         sys.exit()
 
-    if "testReal" in args.mode:
+    if "testReal" in mode_arg:
         print("Mode = testReal")
         # Load weights
         print("[+] Loading weights...")
@@ -105,6 +119,9 @@ if __name__ == "__main__":
             predictResult = preprocess_predict_result(predictResult)
             save_predict_result(predictResult, file_names_subset, final_result)  # TODOx reimplement
             print("Finish process batch {} of {}".format(i + 1, number_of_batches))
+
+            if debug and i == number_of_batches_debug:
+                break
 
         final_result = finalize_result(final_result)
         save_final_result(final_result)

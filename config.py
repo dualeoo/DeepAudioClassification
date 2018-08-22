@@ -14,13 +14,11 @@ modelPath = "model/"
 
 #Spectrogram resolution
 pixelPerSecond = 50
+desiredSliceSize = pixelPerSecond * 3
+sliceSize = 128  # Slice parameters - this will be the size the original image is resized to
 
-# Slice parameters - this will be the size the original image is resized to
-sliceSize = 128
-
+# percentage_of_real_test_slices = 0.01
 #Dataset parameters
-slicesPerGenre = 1000  # This is the number of slices per gerne
-percentage_of_real_test_slices = 0.01
 validationRatio = 0.3
 testRatio = 0.1
 
@@ -29,8 +27,10 @@ batchSize = 128
 learningRate = 0.001
 nbEpoch = 20
 
-desiredSliceSize = pixelPerSecond * 3
-numberOfRawFilesToProcess = 50
+slicesPerGenre = 1000  # This is the number of slices per gerne
+numberOfTrainRawFilesToProcessInDebugMode = 50
+length_train_id = 10
+number_of_batches_debug = 10
 
 nameOfUnknownGenre = "unknownGenre"
 realTestDatasetPrefix = "testReal"
