@@ -4,17 +4,17 @@ from PIL import Image
 
 
 # Returns numpy image at size imageSize*imageSize
-def getProcessedData(img, imageSize):
-    img = img.resize((imageSize, imageSize), resample=Image.ANTIALIAS)
+def get_processed_data(img, slice_size):
+    img = img.resize((slice_size, slice_size), resample=Image.ANTIALIAS)
     # TODO thong tin ve image name bi mat tu day
-    imgData = np.asarray(img, dtype=np.uint8).reshape(imageSize, imageSize, 1)
+    img_data = np.asarray(img, dtype=np.uint8).reshape(slice_size, slice_size, 1)
 
-    imgData = imgData / 255.
-    return imgData
+    img_data = img_data / 255.
+    return img_data
 
 
 # Returns numpy image at size imageSize*imageSize
-def getImageData(filename, imageSize):
+def get_image_data(filename, slice_size):
     img = Image.open(filename)
-    imgData = getProcessedData(img, imageSize)
-    return imgData
+    img_data = get_processed_data(img, slice_size)
+    return img_data

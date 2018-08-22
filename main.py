@@ -6,12 +6,12 @@ import string
 import sys
 
 from config import batchSize, slicesPerGenre, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, modelName, \
-    percentage_of_real_test_slices, nameOfUnknownGenre
+    nameOfUnknownGenre
 from config import slicesPath, slicesTestPath, rawDataPath, testDataPath, spectrogramsPath, spectrogramsTestPath
-from datasetTools import getDataset
+from datasetTools import get_dataset, get_real_test_dataset
 from model import createModel
 from songToData import createSlicesFromAudio
-from utility import save_predict_result
+from utility import save_predict_result, preprocess_predict_result
 
 parser = argparse.ArgumentParser()
 parser.add_argument("mode", help="Trains or tests the CNN", nargs='+', choices=["train",
@@ -49,8 +49,8 @@ path_to_model = '{}{}'.format(modelPath, modelName)
 if "train" in args.mode:
     print("Mode = train")
     # Create or load new dataset
-    train_X, train_y, validation_X, validation_y = getDataset(slicesPerGenre, genres, sliceSize, validationRatio,
-                                                              testRatio, "train", slicesPath)
+    train_X, train_y, validation_X, validation_y = get_dataset(slicesPerGenre, genres, sliceSize, validationRatio,
+                                                               testRatio, "train")
 
     # Define run id for graphs
     run_id = "MusicGenres - " + str(batchSize) + " " + ''.join(
@@ -71,7 +71,7 @@ if "train" in args.mode:
 if "test" in args.mode:
     # Create or load new dataset
     print("Mode = test")
-    test_X, test_y = getDataset(slicesPerGenre, genres, sliceSize, validationRatio, testRatio, "test", slicesPath)
+    test_X, test_y = get_dataset(slicesPerGenre, genres, sliceSize, validationRatio, testRatio, "test")
 
     # Load weights
     print("[+] Loading weights...")
@@ -84,22 +84,26 @@ if "test" in args.mode:
 
 if "testReal" in args.mode:
     print("Mode = testReal")
-    # Create or load new dataset
-    genre = nameOfUnknownGenre
-    file_names = os.listdir(slicesTestPath + genre)
-    number_of_slices_to_score = int(percentage_of_real_test_slices * len(file_names))
-    print(
-        "number_of_slices_to_score = {} ({}%)".format(number_of_slices_to_score, percentage_of_real_test_slices * 100))
-    X = getDataset(genres=genres, sliceSize=sliceSize, mode="testReal", slicesPath=slicesTestPath,
-                   nbPerGenre=number_of_slices_to_score, testRatio=None, validationRatio=None)
-
     # Load weights
     print("[+] Loading weights...")
     model.load(path_to_model)
     print("    Weights loaded! ✅")
 
-    predictResult = model.predict_label(X)
-    print("The result: {}".format(predictResult))
-    save_predict_result(predictResult)
+    file_names = os.listdir(slicesPath + nameOfUnknownGenre)
+    file_names = [filename for filename in file_names if filename.endswith('.png')]
+    total_number_of_files = len(file_names)
+    print("Total number of slices to process = {}".format(total_number_of_files))
+    number_of_batches = int(total_number_of_files / batchSize) + 1
+    print("Total number of batches to run = {}".format(number_of_batches))
+
+    final_result = {}
+
+    for i in range(number_of_batches):
+        x, file_names = get_real_test_dataset(number_of_batches, file_names, i)
+        predictResult = model.predict_label(x)
+        predictResult = preprocess_predict_result(predictResult)
+        save_predict_result(predictResult, file_names, final_result)  # TODOx reimplement
+        print("Finish process batch {} of {}".format(i + 1, number_of_batches))
+
     print("[+] Finish prediction!")
     sys.exit()

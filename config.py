@@ -2,13 +2,14 @@
 spectrogramsPath = "Data/Spectrograms/"
 slicesPath = "Data/Slices/"
 slicesTestPath = "Data/SlicesTest/"
-datasetPath = "Data/Dataset/"
+dataset_path = "Data/Dataset/"
 rawDataPath = "Data/Raw/"
 testDataPath = "Data/Test/"
 spectrogramsTestPath = "Data/SpectrogramsTest/"
 trainDataLabelPath = "Data/train.csv"
 realTestDataFileNamesPath = "Data/predictResult.csv"
 predictResultPath = "Data/realTestNames.csv"
+file_names_path = "Data/FileNames/"
 modelPath = "model/"
 
 
