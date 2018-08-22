@@ -1,4 +1,5 @@
 import csv
+import datetime
 
 from config import predictResultPath
 
@@ -39,8 +40,15 @@ def finalize_result(final_result):
     return final_result  # TODOx
 
 
-def save_final_result(final_result):
-    with open(predictResultPath, mode='w') as f:
+def get_current_time():
+    x = datetime.datetime.now()
+    x = x.strftime("%Y%m%d_%H%M")
+    return x
+
+
+def save_final_result(final_result, run_id):
+    file_id = get_current_time()
+    with open(predictResultPath + "{}_{}.csv".format(run_id, file_id), mode='w') as f:
         csv_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         for file_name, genre in final_result.items():
             csv_writer.writerow([file_name, genre])

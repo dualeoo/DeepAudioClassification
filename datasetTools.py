@@ -12,15 +12,12 @@ from random import shuffle
 import numpy as np
 
 from config import dataset_path, nameOfUnknownGenre, realTestDatasetPrefix, batchSize, slicesPath, slicesTestPath, \
-    sliceSize, file_names_path
+    sliceSize, file_names_path, real_test_dataset_path, slices_per_genre_ratio, slices_per_genre_ratio_int
 from imageFilesTools import get_image_data
 
 
-# Creates name of dataset from parameters
-
-
-def get_default_dataset_name(nbPerGenre, sliceSize):
-    name = "{}".format(nbPerGenre)
+def get_default_dataset_name(sliceSize):
+    name = "{}".format(slices_per_genre_ratio_int)
     name += "_{}".format(sliceSize)
     return name
 
@@ -33,21 +30,23 @@ def get_real_test_dataset_name(sliceSize):
 
 # Creates or loads dataset if it exists
 # Mode = "train" or "test"
-def get_dataset(nbPerGenre, genres, sliceSize, validationRatio, testRatio, mode):
-    dataset_name = "train_X_" + get_default_dataset_name(nbPerGenre, sliceSize)
+def get_dataset(genres, sliceSize, validationRatio, testRatio, mode):
+    dataset_name = "train_X_" + get_default_dataset_name(sliceSize)  # TODOx look inside
     print("[+] Dataset name: {}".format(dataset_name))
-    if not os.path.isfile(get_path_to_dataset(dataset_name)):
-        print("[+] Creating dataset with {} slices of size {} per genre... ⌛️".format(nbPerGenre, sliceSize))
-        return create_dataset_from_slices(nbPerGenre, genres, sliceSize, validationRatio, testRatio, mode)
+    if not os.path.isfile("{}{}.p".format(dataset_path, dataset_name)):  # TODOx look inside get_path_to_dataset
+        print("[+] Creating dataset with {}% of slices per genre. The slice size is {}... ⌛️".format(
+            slices_per_genre_ratio_int, sliceSize))
+        return create_dataset_from_slices(genres, sliceSize, validationRatio, testRatio, mode)  # fixmex
+        # TODOx look inside
     else:
         print("[+] Using existing dataset")
-        return load_dataset(nbPerGenre, sliceSize, mode)
+        return load_dataset(sliceSize, mode)  # fixmex
 
 
 # Loads dataset
 # Mode = "train" or "test"
-def load_dataset(nb_per_genre, slice_size, mode):
-    dataset_name = get_default_dataset_name(nb_per_genre, slice_size)
+def load_dataset(slice_size, mode):
+    dataset_name = get_default_dataset_name(slice_size)
 
     if mode == "train":
         print("[+] Loading training and validation datasets... ")
@@ -67,11 +66,11 @@ def load_dataset(nb_per_genre, slice_size, mode):
 
 
 # Saves dataset
-def save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, nbPerGenre, sliceSize, mode):
+def save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, sliceSize):
     # Create path for dataset if not existing
-    check_path_exist(dataset_path)
+
     print("[+] Saving dataset... ")
-    datasetName = get_default_dataset_name(nbPerGenre, sliceSize)
+    datasetName = get_default_dataset_name(sliceSize)
     pickle.dump(train_X, open("{}train_X_{}.p".format(dataset_path, datasetName), "wb"), protocol=4)
     pickle.dump(train_y, open("{}train_y_{}.p".format(dataset_path, datasetName), "wb"), protocol=4)
     pickle.dump(validation_X, open("{}validation_X_{}.p".format(dataset_path, datasetName), "wb"), protocol=4)
@@ -82,8 +81,19 @@ def save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, n
 
 
 # Creates and save dataset from slices
-def create_dataset_from_slices(slices_per_genre, genres, slice_size, validation_ratio, test_ratio, mode):
+def identify_suitable_number_of_slices(genres):
+    number_of_files_in_dir = []
+    for genre in genres:
+        file_names = os.listdir(slicesPath + genre)
+        number_of_files_in_dir.append(len(file_names))
+    return min(number_of_files_in_dir) * slices_per_genre_ratio
+
+
+def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio, mode):
     data = []
+    slices_per_genre = identify_suitable_number_of_slices(genres)
+    print("Number of slices per genre = {}".format(slices_per_genre))
+
     for genre in genres:
         print("-> Adding {}...".format(genre))
         # Get slices in genre subfolder
@@ -96,31 +106,41 @@ def create_dataset_from_slices(slices_per_genre, genres, slice_size, validation_
         # Add data (X,y)
         for filename in file_names:
             imgData = get_image_data(get_path_to_file_of_genre(filename, genre), slice_size)
+            # TODOx look inside get_path_to_file_of_genre
+            # TODOx look inside get_image_data
             label = [1. if genre == g else 0. for g in genres]
             data.append((imgData, label))
 
     # Shuffle data
     shuffle(data)
 
-    # Extract X and y
-    X, y = zip(*data)
-
     # Split data
-    validationNb = int(len(X) * validation_ratio)
-    testNb = int(len(X) * test_ratio)
-    trainNb = len(X) - (validationNb + testNb)
+    validationNb = int(len(data) * validation_ratio)
+    testNb = int(len(data) * test_ratio)
+    trainNb = len(data) - (validationNb + testNb)
+
+    train_data = data[:trainNb]
+    validation_data = data[trainNb:trainNb + validationNb]
+    test_data = data[-testNb:]
+
+    x_train, y_train = zip(*train_data)
+    x_val, y_val = zip(*validation_data)
+    x_test, y_test = zip(*test_data)
 
     # Prepare for Tflearn at the same time
-    train_X = np.array(X[:trainNb]).reshape([-1, slice_size, slice_size, 1])  # TODOx what is reshape?
-    train_y = np.array(y[:trainNb])
-    validation_X = np.array(X[trainNb:trainNb + validationNb]).reshape([-1, slice_size, slice_size, 1])
-    validation_y = np.array(y[trainNb:trainNb + validationNb])
-    test_X = np.array(X[-testNb:]).reshape([-1, slice_size, slice_size, 1])
-    test_y = np.array(y[-testNb:])
+    train_X = np.array(x_train).reshape([-1, slice_size, slice_size, 1])  # TODOx what is reshape?
+    train_y = np.array(y_train)
+    validation_X = np.array(x_val).reshape([-1, slice_size, slice_size, 1])
+    validation_y = np.array(y_val)
+    test_X = np.array(x_test).reshape([-1, slice_size, slice_size, 1])
+    test_y = np.array(y_test)
     print("    Dataset created! ✅")
 
     # Save
-    save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, slices_per_genre, slice_size, mode)
+    # TODOx look inside
+    # fixmex
+    save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, slice_size)
+
     if mode == "train":
         return train_X, train_y, validation_X, validation_y
     elif mode == "test":
@@ -139,7 +159,7 @@ def load_file_names(real_test_dataset_name):
 
 def load_real_test_dataset(real_test_dataset_name):
     print("[+] Loading REAL testing dataset... ")
-    path_to_dataset = get_path_to_dataset(real_test_dataset_name)
+    path_to_dataset = get_path_to_real_test_dataset(real_test_dataset_name)
     real_test_x = pickle.load(open(path_to_dataset, "rb"))
     print("    Testing dataset loaded! ✅")
     file_names = load_file_names(real_test_dataset_name)
@@ -152,7 +172,7 @@ def get_real_test_dataset(number_of_batches, file_names, i):
     real_test_dataset_name = get_real_test_dataset_name(sliceSize) + "_{}_{}".format(batch_number,
                                                                                      number_of_batches)
     print("[+] Dataset name: " + real_test_dataset_name)
-    path_to_dataset = get_path_to_dataset(real_test_dataset_name)
+    path_to_dataset = get_path_to_real_test_dataset(real_test_dataset_name)
     if not os.path.isfile(path_to_dataset):
         print("[+] Creating dataset with of size {}... ⌛️".format(sliceSize))
         starting_file = i * batchSize
@@ -165,15 +185,15 @@ def get_real_test_dataset(number_of_batches, file_names, i):
 
 
 def save_real_test_dataset(test_real_x, real_test_dataset_name):
-    check_path_exist(dataset_path)
     print("[+] Saving dataset... ")
-    path_to_dataset = get_path_to_dataset(real_test_dataset_name)
+    path_to_dataset = get_path_to_real_test_dataset(real_test_dataset_name)
     pickle.dump(test_real_x, open(path_to_dataset, "wb"), protocol=4)
     print("    Dataset saved! ✅💾")
 
 
-def get_path_to_dataset(dataset_name):
-    return "{}{}.p".format(dataset_path, dataset_name)
+def get_path_to_real_test_dataset(dataset_name):
+    # fixmex
+    return "{}{}.p".format(real_test_dataset_path, dataset_name)
 
 
 def get_path_to_file_names(dataset_name):
@@ -190,7 +210,6 @@ def check_path_exist(path):
 
 
 def save_file_names(file_names, real_test_dataset_name):
-    check_path_exist(file_names_path)
     path_file_name = get_path_to_file_names(real_test_dataset_name)
     pickle.dump(file_names, open(path_file_name, "wb"), protocol=4)
     # TODOx
@@ -213,3 +232,8 @@ def create_real_test_dataset_from_slices(slice_size, files_for_this_batch, real_
     save_real_test_dataset(test_real_x, real_test_dataset_name)  # fixmex
     save_file_names(file_names, real_test_dataset_name)  # fixmex
     return test_real_x, file_names
+
+
+check_path_exist(real_test_dataset_path)
+check_path_exist(dataset_path)
+check_path_exist(file_names_path)

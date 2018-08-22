@@ -3,11 +3,10 @@ import argparse
 import os
 import random
 import string
-import sys
 
-from config import batchSize, slicesPerGenre, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, modelName, \
+from config import batchSize, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, modelName, \
     nameOfUnknownGenre, slicesPath, slicesTestPath, rawDataPath, testDataPath, spectrogramsPath, spectrogramsTestPath, \
-    pixelPerSecond, desiredSliceSize, length_train_id, number_of_batches_debug, learningRate
+    pixelPerSecond, desiredSliceSize, length_train_id, number_of_batches_debug, learningRate, slices_per_genre_ratio
 from datasetTools import get_dataset, get_real_test_dataset
 from model import createModel
 from songToData import createSlicesFromAudio
@@ -24,9 +23,11 @@ args = parser.parse_args()
 mode_arg = args.mode
 debug = args.debug
 
+run_id = "MusicGenres_" + str(batchSize) + "_" + ''.join(
+    random.SystemRandom().choice(string.ascii_uppercase) for _ in range(length_train_id))
+
 
 if __name__ == "__main__":
-
 
     print("--------------------------")
     print("| *** Config *** ")
@@ -41,16 +42,18 @@ if __name__ == "__main__":
     print("| Validation ratio: {}".format(validationRatio))
     print("| Test ratio: {}".format(testRatio))
     print("|")
-    print("| Slices per genre: {}".format(slicesPerGenre))
+    # print("| Slices per genre: {}".format(slicesPerGenre))
+    print("| Slices per genre ratio: {}".format(slices_per_genre_ratio))
+    print("|")
+    print("| Run_ID: {}".format(run_id))
     print("--------------------------")
 
     if "slice" in mode_arg:
-        createSlicesFromAudio(rawDataPath, spectrogramsPath, mode_arg, slicesPath)
-        sys.exit()
+        createSlicesFromAudio(rawDataPath, spectrogramsPath, mode_arg,
+                              slicesPath)  # TODOx look insude and set debug mode
 
     if "sliceTest" in mode_arg:
         createSlicesFromAudio(testDataPath, spectrogramsTestPath, mode_arg, slicesTestPath)
-        sys.exit()
 
     # List genres
     genres = os.listdir(slicesPath)
@@ -64,12 +67,8 @@ if __name__ == "__main__":
     if "train" in mode_arg:
         print("Mode = train")
         # Create or load new dataset
-        train_X, train_y, validation_X, validation_y = get_dataset(slicesPerGenre, genres, sliceSize, validationRatio,
-                                                                   testRatio, "train")
-
-        # Define run id for graphs
-        run_id = "MusicGenres - " + str(batchSize) + " " + ''.join(
-            random.SystemRandom().choice(string.ascii_uppercase) for _ in range(length_train_id))
+        train_X, train_y, validation_X, validation_y = get_dataset(genres, sliceSize, validationRatio, testRatio,
+                                                                   "train")  # TODOx remove slicesPerGenre
 
         # Train the model
         print("[+] Training the model...")
@@ -81,12 +80,12 @@ if __name__ == "__main__":
         print("[+] Saving the weights...")
         model.save(path_to_model)
         print("[+] Weights saved! ✅💾")
-        sys.exit()
 
     if "test" in mode_arg:
         # Create or load new dataset
         print("Mode = test")
-        test_X, test_y = get_dataset(slicesPerGenre, genres, sliceSize, validationRatio, testRatio, "test")
+        test_X, test_y = get_dataset(genres, sliceSize, validationRatio, testRatio,
+                                     "test")  # TODOx remove slicesPerGenre
 
         # Load weights
         print("[+] Loading weights...")
@@ -95,7 +94,6 @@ if __name__ == "__main__":
 
         testAccuracy = model.evaluate(test_X, test_y)[0]
         print("[+] Test accuracy: {} ".format(testAccuracy))
-        sys.exit()
 
     if "testReal" in mode_arg:
         print("Mode = testReal")
@@ -124,6 +122,5 @@ if __name__ == "__main__":
                 break
 
         final_result = finalize_result(final_result)
-        save_final_result(final_result)
+        save_final_result(final_result, run_id)
         print("[+] Finish prediction!")
-        sys.exit()

@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
-import errno
 import os
 from subprocess import Popen, PIPE, STDOUT
 
 import eyed3
 
 from audioFilesTools import isMono, getGenre
-from config import desiredSliceSize, pixelPerSecond, nameOfUnknownGenre, numberOfTrainRawFilesToProcessInDebugMode
+from config import desiredSliceSize, pixelPerSecond, nameOfUnknownGenre, numberOfTrainRawFilesToProcessInDebugMode, \
+    spectrogramsPath
+from datasetTools import check_path_exist
 from main import debug
 from sliceSpectrogram import createSlicesFromSpectrograms
 
@@ -57,19 +58,11 @@ def createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode):
     files = [file for file in files if file.endswith(".mp3")]
     nbFiles = len(files)
 
-    # Create path if not existing
-    if not os.path.exists(os.path.dirname(spectrogramsPath)):
-        try:
-            os.makedirs(os.path.dirname(spectrogramsPath))
-        except OSError as exc:  # Guard against race condition
-            if exc.errno != errno.EEXIST:
-                raise
-
     # Rename files according to genre
     if not debug:
         for index, filename in enumerate(files):
             get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio,
-                                                 spectrogramsPath)
+                                                 spectrogramsPath)  # TODOx look inside
     else:
         for index, filename in enumerate(files):
             get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio,
@@ -79,8 +72,8 @@ def createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode):
 
 def get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio, spectrogramsPath):
     print("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
-    newFilename = getNewFileName(filename, genresID, index, mode, pathToAudio)
-    createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath)
+    newFilename = getNewFileName(filename, genresID, index, mode, pathToAudio)  # TODOx look inside
+    createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath)  # TODOx look inside
 
 
 def getNewFileName(filename, genresID, index, mode, pathToAudio):
@@ -99,9 +92,13 @@ def getNewFileName(filename, genresID, index, mode, pathToAudio):
 # Whole pipeline .mp3 -> .png slices
 def createSlicesFromAudio(pathToAudio, spectrogramsPath, mode, slicesPath):
     print("Creating spectrograms...")
-    createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode)
+    createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode)  # TODOx look inside
     print("Spectrograms created!")
 
     print("Creating slices...")
-    createSlicesFromSpectrograms(desiredSliceSize, spectrogramsPath, slicesPath)
+    createSlicesFromSpectrograms(desiredSliceSize, spectrogramsPath, slicesPath)  # TODOx look inside
     print("Slices created!")
+
+
+# Create path if not existing
+check_path_exist(spectrogramsPath)

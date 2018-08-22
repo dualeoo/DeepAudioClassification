@@ -1,18 +1,23 @@
 # Import Pillow:
-import errno
 import os.path
 
 from PIL import Image
+
+# Slices all spectrograms
+from datasetTools import check_path_exist
 
 
 # from config import spectrogramsPath, slicesPath
 
 
-# Slices all spectrograms
 def createSlicesFromSpectrograms(desiredSize, spectrogramsPath, slicesPath):
-    for filename in os.listdir(spectrogramsPath):
+    file_names = os.listdir(spectrogramsPath)
+    index = 1
+    for filename in file_names:
         if filename.endswith(".png"):
-            sliceSpectrogram(filename, desiredSize, spectrogramsPath, slicesPath)
+            sliceSpectrogram(filename, desiredSize, spectrogramsPath, slicesPath)  # TODOx look inside
+            print("Finish slicing for file {}/{}".format(index, len(file_names)))
+            index += 1
 
 
 # Creates slices from spectrogram
@@ -30,17 +35,13 @@ def sliceSpectrogram(filename, desiredSliceSize, spectrogramsPath, slicesPath):
 
     # Create path if not existing
     slicePath = slicesPath + "{}/".format(genre)
-    if not os.path.exists(os.path.dirname(slicePath)):
-        try:
-            os.makedirs(os.path.dirname(slicePath))
-        except OSError as exc:  # Guard against race condition
-            if exc.errno != errno.EEXIST:
-                raise
+    check_path_exist(slicePath)
 
     # For each sample
     for i in range(nbSamples):
-        print("Creating slice: ", (i + 1), "/", nbSamples, "for", filename)
+        # print("Creating slice: ", (i + 1), "/", nbSamples, "for", filename)
         # Extract and save 128x128 sample
         startPixel = i * desiredSliceSize
         imgTmp = img.crop((startPixel, 1, startPixel + desiredSliceSize, desiredSliceSize + 1))
         imgTmp.save(slicesPath + "{}/{}_{}.png".format(genre, filename[:-4], i))  # TODOx why [:-4]? to remove .png
+    # TODOx inform finish slice spectrogram
