@@ -14,7 +14,7 @@ import numpy as np
 
 from config import dataset_path, nameOfUnknownGenre, realTestDatasetPrefix, batchSize, slicesPath, slicesTestPath, \
     sliceSize, file_names_path, real_test_dataset_path, slices_per_genre_ratio, slices_per_genre_ratio_each_genre, \
-    my_logger_name, number_of_real_test_files_debug
+    number_of_real_test_files_debug, my_logger_name
 from imageFilesTools import get_image_data
 
 my_logger = logging.getLogger(my_logger_name)

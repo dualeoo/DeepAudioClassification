@@ -1,10 +1,10 @@
 import argparse
 import csv
-import datetime
 import logging
 from sys import stdout
 
-from config import predictResultPath, logging_formatter, time_formatter, log_file_name, log_file_mode, my_logger_name
+from config import predictResultPath, logging_formatter, time_formatter, log_file_name, log_file_mode, \
+    get_current_time_c
 
 
 def process_file_name(file_name):
@@ -48,9 +48,7 @@ def finalize_result(final_result):
 
 
 def get_current_time():
-    x = datetime.datetime.now()
-    x = x.strftime("%Y%m%d_%H%M")
-    return x
+    return get_current_time_c()
 
 
 def save_final_result(final_result, run_id):
@@ -77,7 +75,7 @@ def find_max_genre(result):
     return final_genre  # TODOx
 
 
-def set_up_logging():
+def set_up_logging(my_logger_name):
     root_logger = logging.getLogger()
     root_logger.handlers[0].setLevel(logging.WARNING)
     my_logger = logging.getLogger(my_logger_name)

@@ -1,9 +1,20 @@
+import datetime
+
+
+def get_current_time_c():
+    x = datetime.datetime.now()
+    x = x.strftime("%Y%m%d_%H%M")
+    return x
+
+
 nameOfUnknownGenre = "unknownGenre"
 realTestDatasetPrefix = "testReal"
 modelName = "musicDNN.tflearn"
 log_file_name = "myLog.log"
+run_id = "MusicGenres_" + "_" + get_current_time_c()
+my_logger_name = run_id + ".log"
 
-#Define paths for files
+# Define paths for files
 spectrogramsPath = "Data/Spectrograms/"
 slicesPath = "Data/Slices/"
 slicesTestPath = "Data/SlicesTest/"
@@ -17,18 +28,17 @@ predictResultPath = "Data/PredictResult/"
 file_names_path = "Data/FileNames/"
 modelPath = "model/"
 
-
-#Spectrogram resolution
+# Spectrogram resolution
 pixelPerSecond = 50
 desiredSliceSize = pixelPerSecond * 3
 sliceSize = 128  # Slice parameters - this will be the size the original image is resized to
 
 # percentage_of_real_test_slices = 0.01
-#Dataset parameters
+# Dataset parameters
 validationRatio = 0.3
 testRatio = 0.1
 
-#Model parameters
+# Model parameters
 batchSize = 128
 learningRate = 0.001
 nbEpoch = 20
@@ -47,4 +57,3 @@ number_of_batches_debug = 10
 logging_formatter = '%(message)s | %(asctime)s:%(levelname)s:%(threadName)s:%(funcName)s'
 time_formatter = '%Y%m%d %I:%M:%S %p'
 log_file_mode = 'a'
-my_logger_name = "my_logger"
