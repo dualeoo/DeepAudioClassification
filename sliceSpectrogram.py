@@ -1,4 +1,5 @@
 # Import Pillow:
+import logging
 import os.path
 
 from PIL import Image
@@ -16,7 +17,7 @@ def createSlicesFromSpectrograms(desiredSize, spectrogramsPath, slicesPath):
     for filename in file_names:
         if filename.endswith(".png"):
             sliceSpectrogram(filename, desiredSize, spectrogramsPath, slicesPath)  # TODOx look inside
-            print("Finish slicing for file {}/{}".format(index, len(file_names)))
+            logging.debug("Finish slicing for file {}/{}".format(index, len(file_names)))
             index += 1
 
 
@@ -39,7 +40,7 @@ def sliceSpectrogram(filename, desiredSliceSize, spectrogramsPath, slicesPath):
 
     # For each sample
     for i in range(nbSamples):
-        # print("Creating slice: ", (i + 1), "/", nbSamples, "for", filename)
+        # logging.debug("Creating slice: ", (i + 1), "/", nbSamples, "for", filename)
         # Extract and save 128x128 sample
         startPixel = i * desiredSliceSize
         imgTmp = img.crop((startPixel, 1, startPixel + desiredSliceSize, desiredSliceSize + 1))

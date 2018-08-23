@@ -10,13 +10,17 @@ def process_file_name(file_name):
 
 
 def save_predict_result(predict_results, file_names, final_result):
+
     for i in range(len(predict_results)):
         predict_result = predict_results[i]
         file_name = file_names[i]
+        # TODO debug value of predict_result and file_name
         file_name, slice_id = process_file_name(file_name)
+        # TODO debug value of new file_name
         if file_name not in final_result:
             final_result[file_name] = {}
         result_of_particular_file = final_result[file_name]
+        # TODO debug value of result_of_particular_file
         if predict_result not in result_of_particular_file:
             result_of_particular_file[predict_result] = 1
         else:
@@ -27,6 +31,7 @@ def save_predict_result(predict_results, file_names, final_result):
 def preprocess_predict_result(predict_results):
     new_result = []
     for result in predict_results:
+        # TODO debug value of result
         new_result.append(result[0])
     return new_result  # TODOx
 
@@ -50,6 +55,7 @@ def save_final_result(final_result, run_id):
     file_id = get_current_time()
     with open(predictResultPath + "{}_{}.csv".format(run_id, file_id), mode='w') as f:
         csv_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+        csv_writer.writerow(["Id", "Genre"])
         for file_name, genre in final_result.items():
             csv_writer.writerow([file_name, genre])
 

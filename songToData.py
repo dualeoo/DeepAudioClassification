@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
+import logging
 import os
+from pathlib import Path
 from subprocess import Popen, PIPE, STDOUT
 
 import eyed3
@@ -35,7 +37,7 @@ def createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath):
     p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, cwd=currentPath)
     output, errors = p.communicate()
     if errors:
-        print(errors)
+        logging.debug(errors)
 
     # Create spectrogram
     # filename.replace(".mp3", "") # TODOpro why do this? I comment out it. Be careful.
@@ -44,7 +46,7 @@ def createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath):
     p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, cwd=currentPath)
     output, errors = p.communicate()
     if errors:
-        print(errors)
+        logging.debug(errors)
 
     # Remove tmp mono track
     os.remove("/tmp/{}.mp3".format(newFilename))
@@ -71,8 +73,13 @@ def createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode):
 
 
 def get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio, spectrogramsPath):
-    print("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
+    logging.debug("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
     newFilename = getNewFileName(filename, genresID, index, mode, pathToAudio)  # TODOx look inside
+    # TODOx if scpectrogram already exitst, do not create
+    file = Path('{}{}'.format(pathToAudio, newFilename))
+    if file.exists():
+        logging.debug("{} already exists so no spectrogram create!".format(newFilename))
+        return
     createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath)  # TODOx look inside
 
 
@@ -91,13 +98,13 @@ def getNewFileName(filename, genresID, index, mode, pathToAudio):
 
 # Whole pipeline .mp3 -> .png slices
 def createSlicesFromAudio(pathToAudio, spectrogramsPath, mode, slicesPath):
-    print("Creating spectrograms...")
+    logging.debug("Creating spectrograms...")
     createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode)  # TODOx look inside
-    print("Spectrograms created!")
+    logging.debug("Spectrograms created!")
 
-    print("Creating slices...")
+    logging.debug("Creating slices...")
     createSlicesFromSpectrograms(desiredSliceSize, spectrogramsPath, slicesPath)  # TODOx look inside
-    print("Slices created!")
+    logging.debug("Slices created!")
 
 
 # Create path if not existing

@@ -12,7 +12,7 @@ rawDataPath = "Data/Raw/"
 testDataPath = "Data/Test/"
 spectrogramsTestPath = "Data/SpectrogramsTest/"
 trainDataLabelPath = "Data/train.csv"
-predictResultPath = "Data/PredictResult"
+predictResultPath = "Data/PredictResult/"
 file_names_path = "Data/FileNames/"
 modelPath = "model/"
 
@@ -34,7 +34,9 @@ nbEpoch = 20
 
 # slicesPerGenre = 1000  # This is the number of slices per gerne
 slices_per_genre_ratio = 1.0  # TODOx be careful. THis might cause memory error latter
-slices_per_genre_ratio_int = int(100 * slices_per_genre_ratio)
+# TODOx task remove slies_per_genre_ratio
+slices_per_genre_ratio_each_genre = {1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1, 10: 1, }
+# slices_per_genre_ratio_int = int(100 * slices_per_genre_ratio)
 numberOfTrainRawFilesToProcessInDebugMode = 10
 number_of_real_test_files_debug = 256
 
