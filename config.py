@@ -47,3 +47,4 @@ number_of_batches_debug = 10
 logging_formatter = '%(message)s | %(asctime)s:%(levelname)s:%(threadName)s:%(funcName)s'
 time_formatter = '%Y%m%d %I:%M:%S %p'
 log_file_mode = 'a'
+my_logger_name = "my_logger"

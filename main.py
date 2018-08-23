@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import logging
 import os
 import random
 import string
@@ -14,7 +13,11 @@ from songToData import createSlicesFromAudio
 from utility import save_predict_result, preprocess_predict_result, finalize_result, save_final_result, \
     get_current_time, set_up_logging, handle_args
 
-set_up_logging()
+my_logger = set_up_logging()
+# print("test")
+# my_logger.debug("debug message")
+# my_logger.warning("warning message")
+# exit()
 
 mode_arg, debug = handle_args()
 
@@ -24,35 +27,35 @@ run_id = "MusicGenres_" + str(batchSize) + "_" + ''.join(
 
 if __name__ == "__main__":
 
-    logging.debug("--------------------------")
-    logging.debug("| *** Config *** ")
-    logging.debug("| Pixel per second: {}".format(pixelPerSecond))
-    logging.debug("| Cut image into slice of {}px width".format(desiredSliceSize))
-    logging.debug("| Resize cut slice to {}px x {}px".format(sliceSize, sliceSize))
-    logging.debug("|")
-    logging.debug("| Batch size: {}".format(batchSize))
-    logging.debug("| Number of epoch: {}".format(nbEpoch))
-    logging.debug("| Learning rate: {}".format(learningRate))
-    logging.debug("|")
-    logging.debug("| Validation ratio: {}".format(validationRatio))
-    logging.debug("| Test ratio: {}".format(testRatio))
-    logging.debug("|")
-    # logging.debug("| Slices per genre: {}".format(slicesPerGenre))
-    logging.debug("| Slices per genre ratio: {}".format(str(slices_per_genre_ratio)))
-    logging.debug("|")
-    logging.debug("| Run_ID: {}".format(run_id))
-    logging.debug("--------------------------")
+    my_logger.debug("--------------------------")
+    my_logger.debug("| *** Config *** ")
+    my_logger.debug("| Pixel per second: {}".format(pixelPerSecond))
+    my_logger.debug("| Cut image into slice of {}px width".format(desiredSliceSize))
+    my_logger.debug("| Resize cut slice to {}px x {}px".format(sliceSize, sliceSize))
+    my_logger.debug("|")
+    my_logger.debug("| Batch size: {}".format(batchSize))
+    my_logger.debug("| Number of epoch: {}".format(nbEpoch))
+    my_logger.debug("| Learning rate: {}".format(learningRate))
+    my_logger.debug("|")
+    my_logger.debug("| Validation ratio: {}".format(validationRatio))
+    my_logger.debug("| Test ratio: {}".format(testRatio))
+    my_logger.debug("|")
+    # my_logger.debug("| Slices per genre: {}".format(slicesPerGenre))
+    my_logger.debug("| Slices per genre ratio: {}".format(str(slices_per_genre_ratio)))
+    my_logger.debug("|")
+    my_logger.debug("| Run_ID: {}".format(run_id))
+    my_logger.debug("--------------------------")
 
     if "slice" in mode_arg:
-        logging.debug("[+] Mode = slice; starting at {}".format(get_current_time()))
+        my_logger.debug("[+] Mode = slice; starting at {}".format(get_current_time()))
         createSlicesFromAudio(rawDataPath, spectrogramsPath, mode_arg,
                               slicesPath)  # TODOx look insude and set debug mode
-        logging.debug("[+] Ending slice at {}".format(get_current_time()))
+        my_logger.debug("[+] Ending slice at {}".format(get_current_time()))
 
     if "sliceTest" in mode_arg:
-        logging.debug("[+] Mode = sliceTest; starting at {}".format(get_current_time()))
+        my_logger.debug("[+] Mode = sliceTest; starting at {}".format(get_current_time()))
         createSlicesFromAudio(testDataPath, spectrogramsTestPath, mode_arg, slicesTestPath)
-        logging.debug("[+] Ending sliceTest at {}".format(get_current_time()))
+        my_logger.debug("[+] Ending sliceTest at {}".format(get_current_time()))
 
     # List genres
     genres = os.listdir(slicesPath)
@@ -64,45 +67,45 @@ if __name__ == "__main__":
     path_to_model = '{}{}'.format(modelPath, modelName)
 
     if "train" in mode_arg:
-        logging.debug("[+] Mode = train; Starting at {}".format(get_current_time()))
+        my_logger.debug("[+] Mode = train; Starting at {}".format(get_current_time()))
         # Create or load new dataset
         train_X, train_y, validation_X, validation_y = get_dataset(genres, sliceSize, validationRatio, testRatio,
                                                                    "train")  # TODOx remove slicesPerGenre
 
         # Train the model
-        logging.debug("[+] Training the model...")
+        my_logger.debug("[+] Training the model...")
         model.fit(train_X, train_y, n_epoch=nbEpoch, batch_size=batchSize, shuffle=True,
                   validation_set=(validation_X, validation_y), snapshot_step=100, show_metric=True, run_id=run_id)
-        logging.debug("    Model trained! ✅")
+        my_logger.debug("    Model trained! ✅")
 
         # Save trained model
-        logging.debug("[+] Saving the weights...")
+        my_logger.debug("[+] Saving the weights...")
         model.save(path_to_model)
-        logging.debug("[+] Weights saved! ✅💾")
-        logging.debug("[+] Training stop at {}".format(get_current_time()))
+        my_logger.debug("[+] Weights saved! ✅💾")
+        my_logger.debug("[+] Training stop at {}".format(get_current_time()))
 
     if "test" in mode_arg:
         # Create or load new dataset
-        logging.debug("Mode = test; Starting at {}".format(get_current_time()))
+        my_logger.debug("Mode = test; Starting at {}".format(get_current_time()))
         test_X, test_y = get_dataset(genres, sliceSize, validationRatio, testRatio,
                                      "test")  # TODOx remove slicesPerGenre
 
         # Load weights
-        logging.debug("[+] Loading weights...")
+        my_logger.debug("[+] Loading weights...")
         model.load(path_to_model)
-        logging.debug("    Weights loaded! ✅")
+        my_logger.debug("    Weights loaded! ✅")
 
         testAccuracy = model.evaluate(test_X, test_y)[0]
-        logging.debug("[+] Test accuracy: {} ".format(testAccuracy))
-        logging.debug("Test ending at {}".format(get_current_time()))
+        my_logger.debug("[+] Test accuracy: {} ".format(testAccuracy))
+        my_logger.debug("Test ending at {}".format(get_current_time()))
 
     if "testReal" in mode_arg:
-        logging.debug("Mode = testReal; Starting at {}".format(get_current_time()))
+        my_logger.debug("Mode = testReal; Starting at {}".format(get_current_time()))
         # TODOx handle debug case
         # Load weights
-        logging.debug("[+] Loading weights...")
+        my_logger.debug("[+] Loading weights...")
         model.load(path_to_model)
-        logging.debug("    Weights loaded! ✅")
+        my_logger.debug("    Weights loaded! ✅")
 
         file_names = os.listdir(slicesTestPath + nameOfUnknownGenre)
         file_names = [filename for filename in file_names if filename.endswith('.png')]
@@ -110,9 +113,9 @@ if __name__ == "__main__":
             total_number_of_files = len(file_names)
         else:
             total_number_of_files = number_of_real_test_files_debug
-        logging.debug("Total number of slices to process = {}".format(total_number_of_files))
+        my_logger.debug("Total number of slices to process = {}".format(total_number_of_files))
         number_of_batches = int(total_number_of_files / batchSize) + 1
-        logging.debug("Total number of batches to run = {}".format(number_of_batches))
+        my_logger.debug("Total number of batches to run = {}".format(number_of_batches))
 
         final_result = {}
 
@@ -121,11 +124,11 @@ if __name__ == "__main__":
             predictResult = model.predict_label(x)
             predictResult = preprocess_predict_result(predictResult)
             save_predict_result(predictResult, file_names_subset, final_result)  # TODOx look inside
-            logging.debug("Finish process batch {} of {}".format(i + 1, number_of_batches))
+            my_logger.debug("Finish process batch {} of {}".format(i + 1, number_of_batches))
 
             if debug and i == number_of_batches_debug:
                 break
 
         final_result = finalize_result(final_result)
         save_final_result(final_result, run_id)
-        logging.debug("[+] Finish prediction at {}".format(get_current_time()))
+        my_logger.debug("[+] Finish prediction at {}".format(get_current_time()))

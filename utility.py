@@ -4,7 +4,7 @@ import datetime
 import logging
 from sys import stdout
 
-from config import predictResultPath, logging_formatter, time_formatter, log_file_name, log_file_mode
+from config import predictResultPath, logging_formatter, time_formatter, log_file_name, log_file_mode, my_logger_name
 
 
 def process_file_name(file_name):
@@ -79,23 +79,23 @@ def find_max_genre(result):
 
 def set_up_logging():
     root_logger = logging.getLogger()
-    root_logger.setLevel(logging.NOTSET)
+    root_logger.handlers[0].setLevel(logging.WARNING)
+    my_logger = logging.getLogger(my_logger_name)
+    my_logger.setLevel(logging.DEBUG)
 
     formatter = logging.Formatter(logging_formatter, time_formatter)
 
-    default_handler = root_logger.handlers[0]
-    default_handler.setLevel(logging.WARNING)
-
     console = logging.StreamHandler(stdout)
     console.setLevel(logging.DEBUG)
-    console.setFormatter(formatter)
+    # console.setFormatter(formatter)
 
     file_handler = logging.FileHandler(log_file_name, log_file_mode)
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
 
-    root_logger.addHandler(console)
-    root_logger.addHandler(file_handler)
+    my_logger.addHandler(console)
+    my_logger.addHandler(file_handler)
+    return my_logger
 
 
 def handle_args():

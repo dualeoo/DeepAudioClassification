@@ -8,7 +8,7 @@ import eyed3
 
 from audioFilesTools import isMono, getGenre
 from config import desiredSliceSize, pixelPerSecond, nameOfUnknownGenre, numberOfTrainRawFilesToProcessInDebugMode, \
-    spectrogramsPath
+    spectrogramsPath, my_logger_name
 from datasetTools import check_path_exist
 from sliceSpectrogram import createSlicesFromSpectrograms
 
@@ -20,7 +20,7 @@ currentPath = os.path.dirname(os.path.realpath(__file__))
 
 # Remove logs
 eyed3.log.setLevel("ERROR")
-
+my_logger = logging.getLogger(my_logger_name)
 
 # Create spectrogram from mp3 files
 def createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath):
@@ -37,7 +37,7 @@ def createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath):
     p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, cwd=currentPath)
     output, errors = p.communicate()
     if errors:
-        logging.debug(errors)
+        my_logger.debug(errors)
 
     # Create spectrogram
     # filename.replace(".mp3", "") # TODOpro why do this? I comment out it. Be careful.
@@ -46,7 +46,7 @@ def createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath):
     p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, cwd=currentPath)
     output, errors = p.communicate()
     if errors:
-        logging.debug(errors)
+        my_logger.debug(errors)
 
     # Remove tmp mono track
     os.remove("/tmp/{}.mp3".format(newFilename))
@@ -73,12 +73,12 @@ def createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode):
 
 
 def get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio, spectrogramsPath):
-    logging.debug("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
+    my_logger.debug("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
     newFilename = getNewFileName(filename, genresID, index, mode, pathToAudio)  # TODOx look inside
     # TODOx if scpectrogram already exitst, do not create
     file = Path('{}{}'.format(pathToAudio, newFilename))
     if file.exists():
-        logging.debug("{} already exists so no spectrogram create!".format(newFilename))
+        my_logger.debug("{} already exists so no spectrogram create!".format(newFilename))
         return
     createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath)  # TODOx look inside
 
@@ -98,13 +98,13 @@ def getNewFileName(filename, genresID, index, mode, pathToAudio):
 
 # Whole pipeline .mp3 -> .png slices
 def createSlicesFromAudio(pathToAudio, spectrogramsPath, mode, slicesPath):
-    logging.debug("Creating spectrograms...")
+    my_logger.debug("Creating spectrograms...")
     createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode)  # TODOx look inside
-    logging.debug("Spectrograms created!")
+    my_logger.debug("Spectrograms created!")
 
-    logging.debug("Creating slices...")
+    my_logger.debug("Creating slices...")
     createSlicesFromSpectrograms(desiredSliceSize, spectrogramsPath, slicesPath)  # TODOx look inside
-    logging.debug("Slices created!")
+    my_logger.debug("Slices created!")
 
 
 # Create path if not existing

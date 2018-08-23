@@ -6,9 +6,13 @@ from tflearn.layers.conv import conv_2d, max_pool_2d
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 
+from config import my_logger_name
+
+my_logger = logging.getLogger(my_logger_name)
+
 
 def createModel(nbClasses,imageSize):
-    logging.debug("[+] Creating model...")
+    my_logger.debug("[+] Creating model...")
     convnet = input_data(shape=[None, imageSize, imageSize, 1], name='input')
 
     convnet = conv_2d(convnet, 64, 2, activation='elu', weights_init="Xavier")
@@ -30,5 +34,5 @@ def createModel(nbClasses,imageSize):
     convnet = regression(convnet, optimizer='rmsprop', loss='categorical_crossentropy')
 
     model = tflearn.DNN(convnet)
-    logging.debug("    Model created! ✅")
+    my_logger.debug("    Model created! ✅")
     return model
