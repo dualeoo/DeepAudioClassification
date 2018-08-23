@@ -4,7 +4,7 @@ import logging
 from sys import stdout
 
 from config import predictResultPath, logging_formatter, time_formatter, log_file_mode, \
-    get_current_time_c, my_logger_file_name, my_logger_name
+    get_current_time_c, my_logger_file_name, my_logger_name, run_id
 
 
 def process_file_name(file_name):
@@ -51,9 +51,8 @@ def get_current_time():
     return get_current_time_c()
 
 
-def save_final_result(final_result, run_id):
-    file_id = get_current_time()
-    with open(predictResultPath + "{}_{}.csv".format(run_id, file_id), mode='w') as f:
+def save_final_result(final_result):
+    with open(predictResultPath + "{}.csv".format(run_id), mode='w') as f:
         csv_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csv_writer.writerow(["Id", "Genre"])
         for file_name, genre in final_result.items():
@@ -97,7 +96,6 @@ def set_up_logging():
 
 
 def handle_args():
-    global mode_arg, debug
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", default=False, action="store_true")
     parser.add_argument("mode", help="Trains or tests the CNN", nargs='+', choices=["train",

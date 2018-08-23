@@ -20,8 +20,11 @@ from imageFilesTools import get_image_data
 my_logger = logging.getLogger(my_logger_name)
 
 
-def get_default_dataset_name(sliceSize):
-    from main import debug
+# def test_method():
+#     my_logger.debug("A testing message inside datasetTools")
+
+
+def get_default_dataset_name(sliceSize, debug):
     if not debug:
         name = "{}".format(100)
     else:
@@ -38,25 +41,25 @@ def get_real_test_dataset_name(sliceSize):
 
 # Creates or loads dataset if it exists
 # Mode = "train" or "test"
-def get_dataset(genres, sliceSize, validationRatio, testRatio, mode):
+def get_dataset(genres, sliceSize, validationRatio, testRatio, mode, debug):
     # TODOx create small data set in debug mode
-    dataset_name = "train_X_" + get_default_dataset_name(sliceSize)  # TODOx look inside
+    dataset_name = "train_X_" + get_default_dataset_name(sliceSize, debug)  # TODOx look inside
     my_logger.debug("[+] Dataset name: {}".format(dataset_name))
     if not os.path.isfile("{}{}.p".format(dataset_path, dataset_name)):  # TODOx look inside get_path_to_dataset
         # TODOx task change all my_logger.debug to my_logger.debug
         my_logger.debug("[+] Creating dataset:The slice size is {}... ⌛️".format(
             sliceSize))
-        return create_dataset_from_slices(genres, sliceSize, validationRatio, testRatio, mode)  # fixmex
+        return create_dataset_from_slices(genres, sliceSize, validationRatio, testRatio, mode, debug)  # fixmex
         # TODOx look inside
     else:
         my_logger.debug("[+] Using existing dataset")
-        return load_dataset(sliceSize, mode)  # fixmex
+        return load_dataset(sliceSize, mode, debug)  # fixmex
 
 
 # Loads dataset
 # Mode = "train" or "test"
-def load_dataset(slice_size, mode):
-    dataset_name = get_default_dataset_name(slice_size)
+def load_dataset(slice_size, mode, debug):
+    dataset_name = get_default_dataset_name(slice_size, debug)
 
     if mode == "train":
         my_logger.debug("[+] Loading training and validation datasets... ")
@@ -76,11 +79,11 @@ def load_dataset(slice_size, mode):
 
 
 # Saves dataset
-def save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, sliceSize):
+def save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, sliceSize, debug):
     # Create path for dataset if not existing
 
     my_logger.debug("[+] Saving dataset... ")
-    datasetName = get_default_dataset_name(sliceSize)
+    datasetName = get_default_dataset_name(sliceSize, debug)
     pickle.dump(train_X, open("{}train_X_{}.p".format(dataset_path, datasetName), "wb"), protocol=4)
     pickle.dump(train_y, open("{}train_y_{}.p".format(dataset_path, datasetName), "wb"), protocol=4)
     pickle.dump(validation_X, open("{}validation_X_{}.p".format(dataset_path, datasetName), "wb"), protocol=4)
@@ -99,9 +102,8 @@ def identify_suitable_number_of_slices(genres):
         return int(min(number_of_files_in_dir) * slices_per_genre_ratio)
 
 
-def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio, mode):
+def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio, mode, debug):
     data = []
-    from main import debug
     # slices_per_genre = identify_suitable_number_of_slices(genres)
     # my_logger.debug("Number of slices per genre = {}".format(slices_per_genre))
 
@@ -156,7 +158,7 @@ def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio,
     # Save
     # TODOx look inside
     # fixmex
-    save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, slice_size)
+    save_dataset(train_X, train_y, validation_X, validation_y, test_X, test_y, slice_size, debug)
 
     if mode == "train":
         return train_X, train_y, validation_X, validation_y

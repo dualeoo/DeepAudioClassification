@@ -47,12 +47,12 @@ if __name__ == "__main__":
     if "slice" in mode_arg:
         my_logger.debug("[+] Mode = slice; starting at {}".format(get_current_time()))
         createSlicesFromAudio(rawDataPath, spectrogramsPath, mode_arg,
-                              slicesPath)  # TODOx look insude and set debug mode
+                              slicesPath, debug)  # TODOx look insude and set debug mode
         my_logger.debug("[+] Ending slice at {}".format(get_current_time()))
 
     if "sliceTest" in mode_arg:
         my_logger.debug("[+] Mode = sliceTest; starting at {}".format(get_current_time()))
-        createSlicesFromAudio(testDataPath, spectrogramsTestPath, mode_arg, slicesTestPath)
+        createSlicesFromAudio(testDataPath, spectrogramsTestPath, mode_arg, slicesTestPath, debug)
         my_logger.debug("[+] Ending sliceTest at {}".format(get_current_time()))
 
     # List genres
@@ -68,7 +68,7 @@ if __name__ == "__main__":
         my_logger.debug("[+] Mode = train; Starting at {}".format(get_current_time()))
         # Create or load new dataset
         train_X, train_y, validation_X, validation_y = get_dataset(genres, sliceSize, validationRatio, testRatio,
-                                                                   "train")  # TODOx remove slicesPerGenre
+                                                                   "train", debug)  # TODOx remove slicesPerGenre
 
         # Train the model
         my_logger.debug("[+] Training the model...")
@@ -86,7 +86,7 @@ if __name__ == "__main__":
         # Create or load new dataset
         my_logger.debug("Mode = test; Starting at {}".format(get_current_time()))
         test_X, test_y = get_dataset(genres, sliceSize, validationRatio, testRatio,
-                                     "test")  # TODOx remove slicesPerGenre
+                                     "test", debug)  # TODOx remove slicesPerGenre
 
         # Load weights
         my_logger.debug("[+] Loading weights...")
@@ -128,5 +128,5 @@ if __name__ == "__main__":
                 break
 
         final_result = finalize_result(final_result)
-        save_final_result(final_result, run_id)
+        save_final_result(final_result)
         my_logger.debug("[+] Finish prediction at {}".format(get_current_time()))

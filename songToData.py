@@ -53,14 +53,13 @@ def createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath):
 
 
 # Creates .png whole spectrograms from mp3 files
-def createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode):
+def createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode, debug):
     genresID = dict()
     files = os.listdir(pathToAudio)
     files = [file for file in files if file.endswith(".mp3")]
     nbFiles = len(files)
 
     # Rename files according to genre
-    from main import debug
     if not debug:
         for index, filename in enumerate(files):
             get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio,
@@ -97,9 +96,9 @@ def getNewFileName(filename, genresID, index, mode, pathToAudio):
 
 
 # Whole pipeline .mp3 -> .png slices
-def createSlicesFromAudio(pathToAudio, spectrogramsPath, mode, slicesPath):
+def createSlicesFromAudio(pathToAudio, spectrogramsPath, mode, slicesPath, debug):
     my_logger.debug("Creating spectrograms...")
-    createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode)  # TODOx look inside
+    createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode, debug)  # TODOx look inside
     my_logger.debug("Spectrograms created!")
 
     my_logger.debug("Creating slices...")
