@@ -14,14 +14,18 @@ import numpy as np
 
 from config import dataset_path, nameOfUnknownGenre, realTestDatasetPrefix, batchSize, slicesPath, slicesTestPath, \
     sliceSize, file_names_path, real_test_dataset_path, slices_per_genre_ratio, slices_per_genre_ratio_each_genre, \
-    my_logger_name
+    my_logger_name, number_of_real_test_files_debug
 from imageFilesTools import get_image_data
 
 my_logger = logging.getLogger(my_logger_name)
 
 
 def get_default_dataset_name(sliceSize):
-    name = "{}".format(100)
+    from main import debug
+    if not debug:
+        name = "{}".format(100)
+    else:
+        name = "{}".format("DEBUG")
     name += "_{}".format(sliceSize)
     return name
 
@@ -35,6 +39,7 @@ def get_real_test_dataset_name(sliceSize):
 # Creates or loads dataset if it exists
 # Mode = "train" or "test"
 def get_dataset(genres, sliceSize, validationRatio, testRatio, mode):
+    # TODOx create small data set in debug mode
     dataset_name = "train_X_" + get_default_dataset_name(sliceSize)  # TODOx look inside
     my_logger.debug("[+] Dataset name: {}".format(dataset_name))
     if not os.path.isfile("{}{}.p".format(dataset_path, dataset_name)):  # TODOx look inside get_path_to_dataset
@@ -96,6 +101,7 @@ def identify_suitable_number_of_slices(genres):
 
 def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio, mode):
     data = []
+    from main import debug
     # slices_per_genre = identify_suitable_number_of_slices(genres)
     # my_logger.debug("Number of slices per genre = {}".format(slices_per_genre))
 
@@ -104,7 +110,10 @@ def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio,
         # Get slices in genre subfolder
         file_names = os.listdir(slicesPath + genre)
         file_names = [filename for filename in file_names if filename.endswith('.png')]
-        slices_per_genre = int(len(file_names) * slices_per_genre_ratio_each_genre[int(genre)])
+        if not debug:
+            slices_per_genre = int(len(file_names) * slices_per_genre_ratio_each_genre[int(genre)])
+        else:
+            slices_per_genre = number_of_real_test_files_debug
         my_logger.debug("Number of slices used for genre {} = {}".format(genre, slices_per_genre))
 
         # Randomize file selection for this genre
