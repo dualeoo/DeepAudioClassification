@@ -8,7 +8,6 @@ from audioFilesTools import isMono, getGenre
 from config import desiredSliceSize, pixelPerSecond, nameOfUnknownGenre, numberOfTrainRawFilesToProcessInDebugMode, \
     spectrogramsPath
 from datasetTools import check_path_exist
-from main import debug
 from sliceSpectrogram import createSlicesFromSpectrograms
 
 # Tweakable parameters
@@ -59,6 +58,7 @@ def createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode):
     nbFiles = len(files)
 
     # Rename files according to genre
+    from main import debug
     if not debug:
         for index, filename in enumerate(files):
             get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio,

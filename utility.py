@@ -16,11 +16,11 @@ def save_predict_result(predict_results, file_names, final_result):
         file_name, slice_id = process_file_name(file_name)
         if file_name not in final_result:
             final_result[file_name] = {}
-        result = final_result[file_name]
-        if predict_result not in result:
-            result[predict_result] = 1
+        result_of_particular_file = final_result[file_name]
+        if predict_result not in result_of_particular_file:
+            result_of_particular_file[predict_result] = 1
         else:
-            result[predict_result] += 1
+            result_of_particular_file[predict_result] += 1
     return final_result
 
 

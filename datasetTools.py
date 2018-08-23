@@ -86,7 +86,7 @@ def identify_suitable_number_of_slices(genres):
     for genre in genres:
         file_names = os.listdir(slicesPath + genre)
         number_of_files_in_dir.append(len(file_names))
-    return min(number_of_files_in_dir) * slices_per_genre_ratio
+        return int(min(number_of_files_in_dir) * slices_per_genre_ratio)
 
 
 def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio, mode):
@@ -152,7 +152,7 @@ def get_path_to_file_of_genre(filename, genre):
 
 
 def load_file_names(real_test_dataset_name):
-    path_to_file_names = get_path_to_file_names(real_test_dataset_name)
+    path_to_file_names = get_path_to_file_names(real_test_dataset_name)  # TODOx look inside
     file_names = pickle.load(open(path_to_file_names, "rb"))
     return file_names  # TODOx
 
@@ -170,18 +170,19 @@ def get_real_test_dataset(number_of_batches, file_names, i):
     batch_number = i + 1
     print("Current batch = {}/{}".format(batch_number, number_of_batches))
     real_test_dataset_name = get_real_test_dataset_name(sliceSize) + "_{}_{}".format(batch_number,
-                                                                                     number_of_batches)
+                                                                                     number_of_batches)  # TODOx look inside
     print("[+] Dataset name: " + real_test_dataset_name)
-    path_to_dataset = get_path_to_real_test_dataset(real_test_dataset_name)
+    path_to_dataset = get_path_to_real_test_dataset(real_test_dataset_name)  # TODOx look inside
     if not os.path.isfile(path_to_dataset):
         print("[+] Creating dataset with of size {}... ⌛️".format(sliceSize))
         starting_file = i * batchSize
         ending_file = starting_file + batchSize
         return create_real_test_dataset_from_slices(sliceSize
-                                                    , file_names[starting_file:ending_file], real_test_dataset_name)
+                                                    , file_names[starting_file:ending_file],
+                                                    real_test_dataset_name)  # TODOx look inside
     else:
         print("[+] Using existing dataset")
-        return load_real_test_dataset(real_test_dataset_name)
+        return load_real_test_dataset(real_test_dataset_name)  # TODOx look inside
 
 
 def save_real_test_dataset(test_real_x, real_test_dataset_name):
@@ -218,11 +219,11 @@ def save_file_names(file_names, real_test_dataset_name):
 def create_real_test_dataset_from_slices(slice_size, files_for_this_batch, real_test_dataset_name):
     # number_of_files_for_this_batch = len(files_for_this_batch)
     data = []
-    file_no = 1
+    # file_no = 1
 
     for filename in files_for_this_batch:
         # print("Adding to dataset file: {}/{} ({})".format(file_no, number_of_files_for_this_batch, filename))
-        file_no += 1
+        # file_no += 1
         img_data = get_image_data(slicesTestPath + nameOfUnknownGenre + "/" + filename, slice_size)  # TODOx look inside
         data.append((img_data, filename))
 
