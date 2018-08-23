@@ -1,7 +1,9 @@
 import csv
 import datetime
+import logging
+from sys import stdout
 
-from config import predictResultPath
+from config import predictResultPath, logging_formatter, time_formatter, log_file_name, log_file_mode
 
 
 def process_file_name(file_name):
@@ -10,7 +12,6 @@ def process_file_name(file_name):
 
 
 def save_predict_result(predict_results, file_names, final_result):
-
     for i in range(len(predict_results)):
         predict_result = predict_results[i]
         file_name = file_names[i]
@@ -73,3 +74,24 @@ def find_max_genre(result):
             max_freq = freq
 
     return final_genre  # TODOx
+
+
+def set_up_logging():
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.NOTSET)
+
+    formatter = logging.Formatter(logging_formatter, time_formatter)
+
+    default_handler = root_logger.handlers[0]
+    default_handler.setLevel(logging.WARNING)
+
+    console = logging.StreamHandler(stdout)
+    console.setLevel(logging.DEBUG)
+    console.setFormatter(formatter)
+
+    file_handler = logging.FileHandler(log_file_name, log_file_mode)
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+
+    root_logger.addHandler(console)
+    root_logger.addHandler(file_handler)

@@ -12,7 +12,16 @@ from config import batchSize, nbEpoch, sliceSize, validationRatio, testRatio, mo
 from datasetTools import get_dataset, get_real_test_dataset
 from model import createModel
 from songToData import createSlicesFromAudio
-from utility import save_predict_result, preprocess_predict_result, finalize_result, save_final_result, get_current_time
+from utility import save_predict_result, preprocess_predict_result, finalize_result, save_final_result, \
+    get_current_time, set_up_logging
+
+set_up_logging()
+
+print("After setting and adding console handler")
+logging.debug("DEBUG")
+logging.warning("WARNING")
+
+exit()
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--debug", default=False, action="store_true")
@@ -27,12 +36,6 @@ debug = args.debug
 
 run_id = "MusicGenres_" + str(batchSize) + "_" + ''.join(
     random.SystemRandom().choice(string.ascii_uppercase) for _ in range(length_train_id))
-
-logging.basicConfig(filename=run_id + ".log", level=logging.DEBUG,
-                    format='%(levelname)s:%(asctime)s:%(thread)d:%(funcName)s:%(message)s',
-                    datefmt='%Y%m%d %I:%M:%S %p')
-console = logging.StreamHandler()
-logging.getLogger('').addHandler(console)
 
 
 if __name__ == "__main__":

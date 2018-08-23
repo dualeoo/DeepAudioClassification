@@ -1,6 +1,7 @@
 nameOfUnknownGenre = "unknownGenre"
 realTestDatasetPrefix = "testReal"
 modelName = "musicDNN.tflearn"
+log_file_name = "myLog.log"
 
 #Define paths for files
 spectrogramsPath = "Data/Spectrograms/"
@@ -42,3 +43,7 @@ number_of_real_test_files_debug = 256
 
 length_train_id = 10
 number_of_batches_debug = 10
+
+logging_formatter = '%(message)s | %(asctime)s:%(levelname)s:%(threadName)s:%(funcName)s'
+time_formatter = '%Y%m%d %I:%M:%S %p'
+log_file_mode = 'a'
