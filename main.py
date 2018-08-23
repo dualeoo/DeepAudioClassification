@@ -4,14 +4,14 @@ import os
 from config import batchSize, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, modelName, \
     nameOfUnknownGenre, slicesPath, slicesTestPath, rawDataPath, testDataPath, spectrogramsPath, spectrogramsTestPath, \
     pixelPerSecond, desiredSliceSize, number_of_batches_debug, learningRate, slices_per_genre_ratio, \
-    number_of_real_test_files_debug, my_logger_name, run_id
+    number_of_real_test_files_debug, run_id
 from datasetTools import get_dataset, get_real_test_dataset
 from model import createModel
 from songToData import createSlicesFromAudio
 from utility import save_predict_result, preprocess_predict_result, finalize_result, save_final_result, \
     get_current_time, set_up_logging, handle_args
 
-my_logger = set_up_logging(my_logger_name)
+my_logger = set_up_logging()
 # print("test")
 # my_logger.debug("debug message")
 # my_logger.warning("warning message")

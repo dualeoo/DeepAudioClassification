@@ -14,7 +14,7 @@ import numpy as np
 
 from config import dataset_path, nameOfUnknownGenre, realTestDatasetPrefix, batchSize, slicesPath, slicesTestPath, \
     sliceSize, file_names_path, real_test_dataset_path, slices_per_genre_ratio, slices_per_genre_ratio_each_genre, \
-    number_of_real_test_files_debug, my_logger_name
+    my_logger_name, number_of_slices_debug
 from imageFilesTools import get_image_data
 
 my_logger = logging.getLogger(my_logger_name)
@@ -113,7 +113,7 @@ def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio,
         if not debug:
             slices_per_genre = int(len(file_names) * slices_per_genre_ratio_each_genre[int(genre)])
         else:
-            slices_per_genre = number_of_real_test_files_debug
+            slices_per_genre = number_of_slices_debug
         my_logger.debug("Number of slices used for genre {} = {}".format(genre, slices_per_genre))
 
         # Randomize file selection for this genre

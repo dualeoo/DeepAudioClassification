@@ -3,8 +3,8 @@ import csv
 import logging
 from sys import stdout
 
-from config import predictResultPath, logging_formatter, time_formatter, log_file_name, log_file_mode, \
-    get_current_time_c
+from config import predictResultPath, logging_formatter, time_formatter, log_file_mode, \
+    get_current_time_c, my_logger_file_name, my_logger_name
 
 
 def process_file_name(file_name):
@@ -75,7 +75,7 @@ def find_max_genre(result):
     return final_genre  # TODOx
 
 
-def set_up_logging(my_logger_name):
+def set_up_logging():
     root_logger = logging.getLogger()
     root_logger.handlers[0].setLevel(logging.WARNING)
     my_logger = logging.getLogger(my_logger_name)
@@ -87,7 +87,7 @@ def set_up_logging(my_logger_name):
     console.setLevel(logging.DEBUG)
     # console.setFormatter(formatter)
 
-    file_handler = logging.FileHandler(log_file_name, log_file_mode)
+    file_handler = logging.FileHandler(my_logger_file_name, log_file_mode)
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
 
