@@ -1,3 +1,4 @@
+import argparse
 import csv
 import datetime
 import logging
@@ -95,3 +96,18 @@ def set_up_logging():
 
     root_logger.addHandler(console)
     root_logger.addHandler(file_handler)
+
+
+def handle_args():
+    global mode_arg, debug
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--debug", default=False, action="store_true")
+    parser.add_argument("mode", help="Trains or tests the CNN", nargs='+', choices=["train",
+                                                                                    "test",
+                                                                                    "slice",
+                                                                                    "sliceTest",
+                                                                                    "testReal"])
+    args = parser.parse_args()
+    mode_arg = args.mode
+    debug = args.debug
+    return mode_arg, debug

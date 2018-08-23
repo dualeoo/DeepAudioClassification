@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-import argparse
 import logging
 import os
 import random
@@ -13,26 +12,11 @@ from datasetTools import get_dataset, get_real_test_dataset
 from model import createModel
 from songToData import createSlicesFromAudio
 from utility import save_predict_result, preprocess_predict_result, finalize_result, save_final_result, \
-    get_current_time, set_up_logging
+    get_current_time, set_up_logging, handle_args
 
 set_up_logging()
 
-print("After setting and adding console handler")
-logging.debug("DEBUG")
-logging.warning("WARNING")
-
-exit()
-
-parser = argparse.ArgumentParser()
-parser.add_argument("--debug", default=False, action="store_true")
-parser.add_argument("mode", help="Trains or tests the CNN", nargs='+', choices=["train",
-                                                                                "test",
-                                                                                "slice",
-                                                                                "sliceTest",
-                                                                                "testReal"])
-args = parser.parse_args()
-mode_arg = args.mode
-debug = args.debug
+mode_arg, debug = handle_args()
 
 run_id = "MusicGenres_" + str(batchSize) + "_" + ''.join(
     random.SystemRandom().choice(string.ascii_uppercase) for _ in range(length_train_id))
