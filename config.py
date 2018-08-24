@@ -61,11 +61,11 @@ best_checkpoint_path = "{}{}_best.ckpt".format(check_point_dir, run_id)
 tensorboard_dir = "tflearn_logs/"
 tensorboard_verbose = 0
 max_checkpoints = None
-keep_checkpoint_every_n_hours = 10 / 60
+# keep_checkpoint_every_n_hours = 10 / 60
 best_val_accuracy = 0.70
 show_metric = True
 shuffle_data = True
-snapshot_step = 100
+snapshot_step = 1000
 snapshot_epoch = True
 
 # Log
