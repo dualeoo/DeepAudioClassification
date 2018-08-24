@@ -62,9 +62,9 @@ tensorboard_verbose = 0
 max_checkpoints = None
 keep_checkpoint_every_n_hours = 10 / 60
 best_val_accuracy = 0.70
-show_metric = False
+show_metric = True
 shuffle_data = True
-snapshot_step = 1000
+snapshot_step = 100
 snapshot_epoch = True
 
 # Log
