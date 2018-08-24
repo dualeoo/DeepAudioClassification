@@ -4,7 +4,7 @@ import os
 from config import batchSize, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, modelName, \
     nameOfUnknownGenre, slicesPath, slicesTestPath, rawDataPath, testDataPath, spectrogramsPath, spectrogramsTestPath, \
     pixelPerSecond, desiredSliceSize, number_of_batches_debug, learningRate, slices_per_genre_ratio, \
-    number_of_real_test_files_debug, run_id
+    number_of_real_test_files_debug, run_id, show_metric, shuffle_data, snapshot_step, snapshot_epoch
 from datasetTools import get_dataset, get_real_test_dataset
 from model import createModel
 from songToData import createSlicesFromAudio
@@ -72,8 +72,9 @@ if __name__ == "__main__":
 
         # Train the model
         my_logger.debug("[+] Training the model...")
-        model.fit(train_X, train_y, n_epoch=nbEpoch, batch_size=batchSize, shuffle=True,
-                  validation_set=(validation_X, validation_y), snapshot_step=100, show_metric=True, run_id=run_id)
+        model.fit(train_X, train_y, n_epoch=nbEpoch, batch_size=batchSize, shuffle=shuffle_data,
+                  validation_set=(validation_X, validation_y), snapshot_step=snapshot_step, show_metric=show_metric,
+                  run_id=run_id, snapshot_epoch=snapshot_epoch)
         my_logger.debug("    Model trained! ✅")
 
         # Save trained model

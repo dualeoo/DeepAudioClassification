@@ -6,7 +6,8 @@ from tflearn.layers.conv import conv_2d, max_pool_2d
 from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 
-from config import my_logger_name
+from config import my_logger_name, tensorboard_verbose, checkpoint_path, best_checkpoint_path, max_checkpoints, \
+    best_val_accuracy
 
 my_logger = logging.getLogger(my_logger_name)
 
@@ -33,6 +34,10 @@ def createModel(nbClasses,imageSize):
     convnet = fully_connected(convnet, nbClasses, activation='softmax')
     convnet = regression(convnet, optimizer='rmsprop', loss='categorical_crossentropy')
 
-    model = tflearn.DNN(convnet)
+    model = tflearn.DNN(convnet, tensorboard_verbose=tensorboard_verbose,
+                        checkpoint_path=checkpoint_path,
+                        best_checkpoint_path=best_checkpoint_path,
+                        max_checkpoints=max_checkpoints,
+                        best_val_accuracy=best_val_accuracy)
     my_logger.debug("    Model created! ✅")
     return model
