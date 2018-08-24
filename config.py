@@ -58,6 +58,6 @@ number_of_slices_before_informing_users = 1000
 length_train_id = 10
 number_of_batches_debug = 10
 
-logging_formatter = '%(message)s | %(asctime)s:%(levelname)s:%(threadName)s:%(funcName)s'
+logging_formatter = '%(asctime)s:%(levelname)s:%(message)s:%(threadName)s:%(funcName)s'
 time_formatter = '%Y%m%d %I:%M:%S %p'
 log_file_mode = 'a'
