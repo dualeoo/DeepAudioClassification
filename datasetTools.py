@@ -107,8 +107,10 @@ def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio,
     # slices_per_genre = identify_suitable_number_of_slices(genres)
     # my_logger.debug("Number of slices per genre = {}".format(slices_per_genre))
 
+    genre_index = 1
+    number_of_genres = len(genres)
     for genre in genres:
-        my_logger.debug("-> Adding {}...".format(genre))
+        my_logger.debug("-> Adding genre {} ({}/{})".format(genre, genre_index, number_of_genres))
         # Get slices in genre subfolder
         file_names = os.listdir(slicesPath + genre)
         file_names = [filename for filename in file_names if filename.endswith('.png')]
@@ -123,16 +125,17 @@ def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio,
         file_names = file_names[:slices_per_genre]
 
         # Add data (X,y)
-        index = 1
+        slice_index = 1
         for filename in file_names:
             imgData = get_image_data(get_path_to_file_of_genre(filename, genre), slice_size)
             # TODOx look inside get_path_to_file_of_genre
             # TODOx look inside get_image_data
             label = [1. if genre == g else 0. for g in genres]
             data.append((imgData, label))
-            if (index % number_of_slices_before_informing_users) == 0:
-                my_logger.info("Finish processing slice {}/{}".format(index, slices_per_genre))
-            index += 1
+            if (slice_index % number_of_slices_before_informing_users) == 0:
+                my_logger.info("Finish processing slice {}/{}".format(slice_index, slices_per_genre))
+            slice_index += 1
+        genre_index += 1
 
     # Shuffle data
     shuffle(data)
