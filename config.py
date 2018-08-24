@@ -16,6 +16,7 @@ my_logger_name = run_id
 log_folder_name = "log/"
 my_logger_file_name = log_folder_name + my_logger_name + ".log"
 modelName = run_id
+root_logger_file_name = log_folder_name + run_id + "_root.log"
 
 # Define paths for files
 spectrogramsPath = "Data/Spectrograms/"
