@@ -7,7 +7,7 @@ from tflearn.layers.core import input_data, dropout, fully_connected
 from tflearn.layers.estimator import regression
 
 from config import my_logger_name, tensorboard_verbose, checkpoint_path, best_checkpoint_path, max_checkpoints, \
-    best_val_accuracy
+    best_val_accuracy, tensorboard_dir
 
 my_logger = logging.getLogger(my_logger_name)
 
@@ -38,6 +38,7 @@ def createModel(nbClasses,imageSize):
                         checkpoint_path=checkpoint_path,
                         best_checkpoint_path=best_checkpoint_path,
                         max_checkpoints=max_checkpoints,
-                        best_val_accuracy=best_val_accuracy)
+                        best_val_accuracy=best_val_accuracy,
+                        tensorboard_dir=tensorboard_dir)
     my_logger.debug("    Model created! ✅")
     return model

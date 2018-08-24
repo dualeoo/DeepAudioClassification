@@ -29,9 +29,7 @@ spectrogramsTestPath = "Data/SpectrogramsTest/"
 trainDataLabelPath = "Data/train.csv"
 predictResultPath = "Data/PredictResult/"
 file_names_path = "Data/FileNames/"
-modelPath = "model/"
-checkpoint_path = "checkpoint/"
-best_checkpoint_path = checkpoint_path + "best"
+
 
 # Spectrogram resolution and Slices
 pixelPerSecond = 50
@@ -56,8 +54,12 @@ number_of_real_test_files_debug = 256
 number_of_slices_debug = 10
 
 # Config tflearn
+modelPath = "model/"
+checkpoint_path = "checkpoint"
+best_checkpoint_path = checkpoint_path + "_best"
+tensorboard_dir = "tflearn_logs/"
 tensorboard_verbose = 0
-max_checkpoints = 10
+max_checkpoints = None
 keep_checkpoint_every_n_hours = 10 / 60
 best_val_accuracy = 0.70
 show_metric = False
