@@ -14,7 +14,7 @@ import numpy as np
 
 from config import dataset_path, nameOfUnknownGenre, realTestDatasetPrefix, batchSize, slicesPath, slicesTestPath, \
     sliceSize, file_names_path, real_test_dataset_path, slices_per_genre_ratio, slices_per_genre_ratio_each_genre, \
-    my_logger_name, number_of_slices_debug
+    my_logger_name, number_of_slices_debug, number_of_slices_before_informing_users
 from imageFilesTools import get_image_data
 
 my_logger = logging.getLogger(my_logger_name)
@@ -123,12 +123,16 @@ def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio,
         file_names = file_names[:slices_per_genre]
 
         # Add data (X,y)
+        index = 1
         for filename in file_names:
             imgData = get_image_data(get_path_to_file_of_genre(filename, genre), slice_size)
             # TODOx look inside get_path_to_file_of_genre
             # TODOx look inside get_image_data
             label = [1. if genre == g else 0. for g in genres]
             data.append((imgData, label))
+            if (index % number_of_slices_before_informing_users) == 0:
+                my_logger.info("Finish processing slice {}/{}".format(index, slices_per_genre))
+            index += 1
 
     # Shuffle data
     shuffle(data)

@@ -13,7 +13,8 @@ modelName = "musicDNN.tflearn"
 log_file_name = "myLog.log"
 run_id = "MusicGenres_" + get_current_time_c()
 my_logger_name = run_id
-my_logger_file_name = my_logger_name + ".log"
+log_folder_name = "log/"
+my_logger_file_name = log_folder_name + my_logger_name + ".log"
 
 # Define paths for files
 spectrogramsPath = "Data/Spectrograms/"
@@ -52,6 +53,7 @@ slices_per_genre_ratio_each_genre = {1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8
 numberOfTrainRawFilesToProcessInDebugMode = 10
 number_of_real_test_files_debug = 256
 number_of_slices_debug = 10
+number_of_slices_before_informing_users = 100
 
 length_train_id = 10
 number_of_batches_debug = 10
