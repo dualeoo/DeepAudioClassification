@@ -55,8 +55,9 @@ number_of_slices_debug = 10
 
 # Config tflearn
 modelPath = "model/"
-checkpoint_path = "checkpoint"
-best_checkpoint_path = checkpoint_path + "_best"
+check_point_dir = "./checkpoint/"
+checkpoint_path = "{}{}.ckpt".format(check_point_dir, run_id)
+best_checkpoint_path = "{}{}_best.ckpt".format(check_point_dir, run_id)
 tensorboard_dir = "tflearn_logs/"
 tensorboard_verbose = 0
 max_checkpoints = None
