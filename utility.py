@@ -75,9 +75,11 @@ def find_max_genre(result):
 
 
 def set_up_logging():
-    root_logger = logging.getLogger()
-    root_logger.handlers[0].setLevel(logging.WARNING)
     formatter = logging.Formatter(logging_formatter, time_formatter)
+
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.DEBUG)
+    root_logger.handlers[0].setLevel(logging.WARNING)
 
     file_handler_for_root_logger = logging.FileHandler(root_logger_file_name, log_file_mode)
     file_handler_for_root_logger.setLevel(logging.DEBUG)
