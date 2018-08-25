@@ -1,29 +1,22 @@
 # -*- coding: utf-8 -*-
 import os
 
-from config import batchSize, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, modelName, \
-    nameOfUnknownGenre, slicesPath, slicesTestPath, rawDataPath, testDataPath, spectrogramsPath, spectrogramsTestPath, \
+from config import batchSize, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, nameOfUnknownGenre, slicesPath, \
+    slicesTestPath, rawDataPath, testDataPath, spectrogramsPath, spectrogramsTestPath, \
     pixelPerSecond, desiredSliceSize, number_of_batches_debug, learningRate, slices_per_genre_ratio, \
-    number_of_real_test_files_debug, run_id, show_metric, shuffle_data, snapshot_step, snapshot_epoch
+    number_of_real_test_files_debug, run_id, show_metric, shuffle_data, snapshot_step, snapshot_epoch, \
+    realTestDatasetPrefix
 from datasetTools import get_dataset, get_real_test_dataset
 from model import createModel
 from songToData import createSlicesFromAudio
 from utility import save_predict_result, preprocess_predict_result, finalize_result, save_final_result, \
     get_current_time, set_up_logging, handle_args
 
-my_logger = set_up_logging()
-# print("test")
-# my_logger.debug("debug message")
-# my_logger.warning("warning message")
-# exit()
-
-mode_arg, debug = handle_args()
-
-# run_id = "MusicGenres_" + str(batchSize) + "_" + ''.join(
-#     random.SystemRandom().choice(string.ascii_uppercase) for _ in range(length_train_id))
-
-
 if __name__ == "__main__":
+    my_logger = set_up_logging()
+    user_args = handle_args()
+    mode_arg = user_args.mode
+    debug = user_args.debug
 
     my_logger.debug("--------------------------")
     my_logger.debug("| *** Config *** ")
@@ -43,16 +36,19 @@ if __name__ == "__main__":
     my_logger.debug("|")
     my_logger.debug("| Run_ID: {}".format(run_id))
     my_logger.debug("--------------------------")
+    # TODO task print other config
 
     if "slice" in mode_arg:
         my_logger.debug("[+] Mode = slice; starting at {}".format(get_current_time()))
-        createSlicesFromAudio(rawDataPath, spectrogramsPath, mode_arg,
-                              slicesPath, debug)  # TODOx look insude and set debug mode
+        # TODOx task change to user_args
+        # TODOx look inside and set debug mode
+        createSlicesFromAudio(rawDataPath, spectrogramsPath, slicesPath, user_args)
         my_logger.debug("[+] Ending slice at {}".format(get_current_time()))
 
     if "sliceTest" in mode_arg:
         my_logger.debug("[+] Mode = sliceTest; starting at {}".format(get_current_time()))
-        createSlicesFromAudio(testDataPath, spectrogramsTestPath, mode_arg, slicesTestPath, debug)
+        # TODOx task change to user_args
+        createSlicesFromAudio(testDataPath, spectrogramsTestPath, slicesTestPath, user_args)
         my_logger.debug("[+] Ending sliceTest at {}".format(get_current_time()))
 
     # List genres
@@ -62,13 +58,15 @@ if __name__ == "__main__":
 
     # Create model
     model = createModel(nbClasses, sliceSize)
-    path_to_model = '{}{}'.format(modelPath, modelName)
+    # fixmex
+    path_to_model = '{}{}'.format(modelPath, user_args.model_name)
 
     if "train" in mode_arg:
         my_logger.debug("[+] Mode = train; Starting at {}".format(get_current_time()))
         # Create or load new dataset
+        # TODOx task change to user_args
         train_X, train_y, validation_X, validation_y = get_dataset(genres, sliceSize, validationRatio, testRatio,
-                                                                   "train", debug)  # TODOx remove slicesPerGenre
+                                                                   user_args)  # TODOx remove slicesPerGenre
 
         # Train the model
         my_logger.debug("[+] Training the model...")
@@ -86,8 +84,8 @@ if __name__ == "__main__":
     if "test" in mode_arg:
         # Create or load new dataset
         my_logger.debug("Mode = test; Starting at {}".format(get_current_time()))
-        test_X, test_y = get_dataset(genres, sliceSize, validationRatio, testRatio,
-                                     "test", debug)  # TODOx remove slicesPerGenre
+        # TODOx task change to user_args
+        test_X, test_y = get_dataset(genres, sliceSize, validationRatio, testRatio, user_args)
 
         # Load weights
         my_logger.debug("[+] Loading weights...")
@@ -98,7 +96,7 @@ if __name__ == "__main__":
         my_logger.debug("[+] Test accuracy: {} ".format(testAccuracy))
         my_logger.debug("Test ending at {}".format(get_current_time()))
 
-    if "testReal" in mode_arg:
+    if realTestDatasetPrefix in mode_arg:
         my_logger.debug("Mode = testReal; Starting at {}".format(get_current_time()))
         # TODOx handle debug case
         # Load weights

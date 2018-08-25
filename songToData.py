@@ -53,27 +53,33 @@ def createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath):
 
 
 # Creates .png whole spectrograms from mp3 files
-def createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode, debug):
+def createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, user_args):
     genresID = dict()
     files = os.listdir(pathToAudio)
     files = [file for file in files if file.endswith(".mp3")]
     nbFiles = len(files)
 
     # Rename files according to genre
-    if not debug:
+    # TODOx process debug
+    if not user_args.debug:
         for index, filename in enumerate(files):
-            get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio,
-                                                 spectrogramsPath)  # TODOx look inside
+            # TODOx process user_args
+            get_file_name_and_create_spectrogram(filename, genresID, index, nbFiles, pathToAudio,
+                                                 spectrogramsPath, user_args)  # TODOx look inside
     else:
         for index, filename in enumerate(files):
-            get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio,
-                                                 spectrogramsPath)
-            if index >= numberOfTrainRawFilesToProcessInDebugMode: break
+            # TODOx process user_args
+            get_file_name_and_create_spectrogram(filename, genresID, index, nbFiles, pathToAudio,
+                                                 spectrogramsPath, user_args)
+            if index >= numberOfTrainRawFilesToProcessInDebugMode:
+                break
 
 
-def get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFiles, pathToAudio, spectrogramsPath):
+def get_file_name_and_create_spectrogram(filename, genresID, index, nbFiles,
+                                         pathToAudio, spectrogramsPath, user_args):
     my_logger.debug("Creating spectrogram for file {}/{}...".format(index + 1, nbFiles))
-    newFilename = getNewFileName(filename, genresID, index, mode, pathToAudio)  # TODOx look inside
+    # TODOx user_args
+    newFilename = getNewFileName(filename, genresID, index, pathToAudio, user_args)  # TODOx look inside
     # TODOx if scpectrogram already exitst, do not create
     file = Path('{}{}'.format(pathToAudio, newFilename))
     if file.exists():
@@ -82,23 +88,25 @@ def get_file_name_and_create_spectrogram(filename, genresID, index, mode, nbFile
     createSpectrogram(filename, newFilename, pathToAudio, spectrogramsPath)  # TODOx look inside
 
 
-def getNewFileName(filename, genresID, index, mode, pathToAudio):
-    newFilename = ""
+def getNewFileName(filename, genresID, index, pathToAudio, user_args):
+    new_filename = ""
+    mode = user_args.mode
     if "slice" in mode:
         fileGenre = getGenre(pathToAudio + filename)
         genresID[fileGenre] = genresID[fileGenre] + 1 if fileGenre in genresID else 1
         fileID = genresID[fileGenre]
-        newFilename = fileGenre + "_" + str(fileID)
+        new_filename = fileGenre + "_" + str(fileID)
     elif "sliceTest" in mode:
         fileID = index + 1
-        newFilename = nameOfUnknownGenre + "_" + str(fileID) + "_" + filename
-    return newFilename
+        new_filename = nameOfUnknownGenre + "_" + str(fileID) + "_" + filename
+    return new_filename
 
 
 # Whole pipeline .mp3 -> .png slices
-def createSlicesFromAudio(pathToAudio, spectrogramsPath, mode, slicesPath, debug):
+def createSlicesFromAudio(pathToAudio, spectrogramsPath, slicesPath, user_args):
     my_logger.debug("Creating spectrograms...")
-    createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, mode, debug)  # TODOx look inside
+    # todox process user_args inside
+    createSpectrogramsFromAudio(pathToAudio, spectrogramsPath, user_args)  # TODOx look inside
     my_logger.debug("Spectrograms created!")
 
     my_logger.debug("Creating slices...")

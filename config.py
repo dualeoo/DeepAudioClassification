@@ -15,7 +15,7 @@ run_id = "MusicGenres_" + get_current_time_c()
 my_logger_name = run_id
 log_folder_name = "log/"
 my_logger_file_name = log_folder_name + my_logger_name + ".log"
-modelName = run_id
+model_name_config = run_id
 root_logger_file_name = log_folder_name + run_id + "_root.log"
 
 # Define paths for files
@@ -61,12 +61,12 @@ checkpoint_path = "{}{}.ckpt".format(check_point_dir, run_id)
 best_checkpoint_path = "{}{}_best.ckpt".format(check_point_dir, run_id)
 tensorboard_dir = "tflearn_logs/"
 tensorboard_verbose = 0
-max_checkpoints = None
+max_checkpoints = None  # TODO task test
 # keep_checkpoint_every_n_hours = 10 / 60
 best_val_accuracy = 0.70
 show_metric = True
 shuffle_data = True
-snapshot_step = 1000
+snapshot_step = 100
 snapshot_epoch = True
 
 # Log
