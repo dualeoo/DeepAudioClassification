@@ -12,9 +12,11 @@ from random import shuffle
 
 import numpy as np
 
+from multiprocessing as mp
+
 from config import dataset_path, nameOfUnknownGenre, realTestDatasetPrefix, batchSize, slicesPath, slicesTestPath, \
     sliceSize, file_names_path, real_test_dataset_path, slices_per_genre_ratio, slices_per_genre_ratio_each_genre, \
-    my_logger_name, number_of_slices_debug, number_of_slices_before_informing_users
+    my_logger_name, number_of_slices_debug, number_of_slices_before_informing_users, number_of_workers
 from imageFilesTools import get_image_data
 
 my_logger = logging.getLogger(my_logger_name)
@@ -126,12 +128,10 @@ def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio,
 
         # Add data (X,y)
         slice_index = 1
+        pool = mp.Pool(processes=number_of_workers)
         for filename in file_names:
-            imgData = get_image_data(get_path_to_file_of_genre(filename, genre), slice_size)
-            # TODOx look inside get_path_to_file_of_genre
-            # TODOx look inside get_image_data
-            label = [1. if genre == g else 0. for g in genres]
-            data.append((imgData, label))
+            result = pool.apply_async(get_image_data, args=(get_path_to_file_of_genre(filename, genre), slice_size))
+            data.push(result)
             if (slice_index % number_of_slices_before_informing_users) == 0:
                 my_logger.info("Finish processing slice {}/{}".format(slice_index, slices_per_genre))
             slice_index += 1
@@ -171,6 +171,14 @@ def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio,
         return train_X, train_y, validation_X, validation_y
     elif mode == "test":
         return test_X, test_y
+
+
+def process_data(filename, genre, genres, slice_size):
+    imgData = get_image_data(get_path_to_file_of_genre(filename, genre), slice_size)
+    # TODOx look inside get_path_to_file_of_genre
+    # TODOx look inside get_image_data
+    label = [1. if genre == g else 0. for g in genres]
+    return imgData, label
 
 
 def get_path_to_file_of_genre(filename, genre):

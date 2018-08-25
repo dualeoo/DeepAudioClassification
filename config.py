@@ -77,3 +77,6 @@ log_file_mode = 'a'
 # Rest
 number_of_slices_before_informing_users = 1000
 length_train_id = 10
+
+# Multiprocessing
+number_of_workers=2
