@@ -129,9 +129,9 @@ def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio,
         # Add data (X,y)
         slice_index = 1
         pool = mp.Pool(processes=number_of_workers)
-        for filename in file_names:
-            result = pool.apply_async(get_image_data, args=(get_path_to_file_of_genre(filename, genre), slice_size))
-            data.push(result)
+        results = [pool.apply_async(get_image_data, args=(get_path_to_file_of_genre(filename, genre), slice_size)) for filename in file_names]
+        for result in results:
+            data.push(result.get())
             if (slice_index % number_of_slices_before_informing_users) == 0:
                 my_logger.info("Finish processing slice {}/{}".format(slice_index, slices_per_genre))
             slice_index += 1
