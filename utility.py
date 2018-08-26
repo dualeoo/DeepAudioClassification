@@ -3,7 +3,7 @@ import csv
 import logging
 import os
 from sys import stdout
-
+from functools import reduce
 from config import predictResultPath, logging_formatter, time_formatter, log_file_mode, \
     get_current_time_c, my_logger_file_name, my_logger_name, run_id, root_logger_file_name, model_name_config, \
     realTestDatasetPrefix, pixelPerSecond, desiredSliceSize, sliceSize, batchSize, nbEpoch, learningRate, \
@@ -34,12 +34,13 @@ def save_predict_result(predict_results, file_names, final_result):
 
 
 def preprocess_predict_result(predict_results):
-    new_result = []
-    # TODO task implement the new way (keep the probability)
-    for result in predict_results:
-        # TODO task debug value of result
-        new_result.append(result[0])
-    return new_result  # TODOx
+    max_length = len(predict_results)
+    max_number = reduce(lambda pre, cur: pre + cur[0], predict_results, 0) / max_length
+    for i in range(1, max_length - 1):
+        total = reduce(lambda pre, cur: pre + cur[i], predict_results, 0) / max_length
+        if total > max_number:
+            max_number = total
+    return max_number  # TODOx
 
 
 def finalize_result(final_result):
