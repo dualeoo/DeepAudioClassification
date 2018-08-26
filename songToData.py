@@ -9,7 +9,7 @@ import eyed3
 from audioFilesTools import isMono, getGenre
 from config import desiredSliceSize, pixelPerSecond, nameOfUnknownGenre, numberOfTrainRawFilesToProcessInDebugMode, \
     spectrogramsPath, my_logger_name
-from datasetTools import check_path_exist
+from dataset.dataset_helper import check_path_exist
 from sliceSpectrogram import createSlicesFromSpectrograms
 
 # Tweakable parameters

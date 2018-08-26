@@ -6,7 +6,7 @@ from PIL import Image
 
 # Slices all spectrograms
 from config import my_logger_name
-from datasetTools import check_path_exist
+from dataset.dataset_helper import check_path_exist
 
 # from config import spectrogramsPath, slicesPath
 my_logger = logging.getLogger(my_logger_name)

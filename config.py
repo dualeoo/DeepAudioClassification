@@ -2,16 +2,17 @@ import datetime
 
 
 def get_current_time_c():
-    x = datetime.datetime.now()
-    x = x.strftime("%Y%m%d_%H%M")
-    return x
+    current_time_l = datetime.datetime.now()
+    current_time_string_l = current_time_l.strftime("%Y%m%d_%H%M")
+    return current_time_string_l, current_time_l  # fixmex (second element returned)
 
 
 # Name
 nameOfUnknownGenre = "unknownGenre"
 realTestDatasetPrefix = "testReal"
 log_file_name = "myLog.log"
-run_id = "MusicGenres_" + get_current_time_c()
+current_time_string, current_time = get_current_time_c()
+run_id = "MusicGenres_" + current_time_string
 my_logger_name = run_id
 log_folder_name = "log/"
 my_logger_file_name = log_folder_name + my_logger_name + ".log"
@@ -23,14 +24,13 @@ spectrogramsPath = "Data/Spectrograms/"
 slicesPath = "Data/Slices/"
 slicesTestPath = "Data/SlicesTest/"
 dataset_path = "Data/Dataset/"
-real_test_dataset_path = dataset_path + realTestDatasetPrefix
+real_test_dataset_path = dataset_path + realTestDatasetPrefix + "/"
 rawDataPath = "Data/Raw/"
 testDataPath = "Data/Test/"
 spectrogramsTestPath = "Data/SpectrogramsTest/"
 trainDataLabelPath = "Data/train.csv"
 predictResultPath = "Data/PredictResult/"
 file_names_path = "Data/FileNames/"
-
 
 # Spectrogram resolution and Slices
 pixelPerSecond = 50
@@ -79,4 +79,4 @@ number_of_slices_before_informing_users = 1000
 length_train_id = 10
 
 # Multiprocessing
-number_of_workers=2
+number_of_workers = 4  # TODOx task allow users to input number of worker as argument
