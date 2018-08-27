@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 import os
 
-from config import batchSize, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, nameOfUnknownGenre, slicesPath, \
-    slicesTestPath, rawDataPath, testDataPath, spectrogramsPath, spectrogramsTestPath, \
+from config import batchSize, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, nameOfUnknownGenre, \
+    path_to_slices, \
+    path_to_test_slices, path_to_raw_data, path_to_test_data, path_to_spectrogram, path_to_test_spectrogram, \
     number_of_batches_debug, number_of_real_test_files_debug, run_id, show_metric, shuffle_data, snapshot_step, \
     snapshot_epoch, \
     realTestDatasetPrefix
@@ -13,13 +14,11 @@ from utility import save_predict_result, preprocess_predict_result, finalize_res
     get_current_time, set_up_logging, handle_args, print_intro
 
 
-def process_slices():
+def process_slices(data_path, spectrogram_path, slice_path):
     time_starting = log_time_start(user_args.mode)
     # TODOx task change to user_args
-    # TODOx look inside and set debug mode
-    createSlicesFromAudio(rawDataPath, spectrogramsPath, slicesPath, user_args)
+    createSlicesFromAudio(data_path, spectrogram_path, slice_path, user_args)
     log_time_end(user_args.mode, time_starting)
-    # my_logger.debug("[+] Ending slice at {}".format(get_current_time()[0]))
 
 
 def log_time_start(mode):
@@ -44,17 +43,10 @@ def log_time_helper(mode, is_starting=True):
     return current_time
 
 
-def process_slices_to_test():
-    my_logger.debug("[+] Mode = sliceTest; starting at {}".format(get_current_time()[0]))
-    # TODOx task change to user_args
-    createSlicesFromAudio(testDataPath, spectrogramsTestPath, slicesTestPath, user_args)
-    my_logger.debug("[+] Ending sliceTest at {}".format(get_current_time()[0]))
-
-
 def get_gernes_and_classes():
     global genres, nbClasses
-    genres = os.listdir(slicesPath)
-    genres = [filename for filename in genres if os.path.isdir(slicesPath + filename)]
+    genres = os.listdir(path_to_slices)
+    genres = [filename for filename in genres if os.path.isdir(path_to_slices + filename)]
     nbClasses = len(genres)
     return genres, nbClasses
 
@@ -99,7 +91,7 @@ def start_test_real():
     my_logger.info("[+] Loading weights...")
     model.load(path_to_model)
     my_logger.info("[+] Weights loaded! ✅")
-    file_names = os.listdir(slicesTestPath + nameOfUnknownGenre)
+    file_names = os.listdir(path_to_test_slices + nameOfUnknownGenre)
     file_names = [filename for filename in file_names if filename.endswith('.png')]
     if not debug:
         total_number_of_files = len(file_names)
@@ -134,10 +126,12 @@ if __name__ == "__main__":
     print_intro()
 
     if "slice" == mode_arg:
-        process_slices()
+        process_slices(path_to_raw_data, path_to_spectrogram, path_to_slices)
+        exit()
 
     if "sliceTest" == mode_arg:
-        process_slices_to_test()
+        process_slices(path_to_test_data, path_to_test_spectrogram, path_to_test_slices)
+        exit()
 
     # List genres
     genres, nbClasses = get_gernes_and_classes()
@@ -148,9 +142,12 @@ if __name__ == "__main__":
 
     if "train" == mode_arg:
         start_train()
+        exit()
 
     if "test" == mode_arg:
         start_test()
+        exit()
 
     if realTestDatasetPrefix == mode_arg:
         start_test_real()
+        exit()

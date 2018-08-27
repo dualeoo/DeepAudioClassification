@@ -1,7 +1,8 @@
 import errno
 import os
 
-from config import realTestDatasetPrefix, slicesPath, slices_per_genre_ratio, real_test_dataset_path, file_names_path
+from config import realTestDatasetPrefix, path_to_slices, slices_per_genre_ratio, real_test_dataset_path, \
+    file_names_path
 from imageFilesTools import get_image_data
 
 
@@ -24,13 +25,13 @@ def get_real_test_dataset_name(slice_size):
 def identify_suitable_number_of_slices(genres):
     number_of_files_in_dir = []
     for genre in genres:
-        file_names = os.listdir(slicesPath + genre)
+        file_names = os.listdir(path_to_slices + genre)
         number_of_files_in_dir.append(len(file_names))
         return int(min(number_of_files_in_dir) * slices_per_genre_ratio)
 
 
 def get_path_to_file_of_genre(filename, genre):
-    return slicesPath + genre + "/" + filename
+    return path_to_slices + genre + "/" + filename
 
 
 def get_path_to_real_test_dataset(dataset_name):

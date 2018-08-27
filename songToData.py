@@ -8,7 +8,7 @@ import eyed3
 
 from audioFilesTools import isMono, getGenre
 from config import desiredSliceSize, pixelPerSecond, nameOfUnknownGenre, numberOfTrainRawFilesToProcessInDebugMode, \
-    spectrogramsPath, my_logger_name
+    path_to_spectrogram, my_logger_name
 from dataset.dataset_helper import check_path_exist
 from sliceSpectrogram import createSlicesFromSpectrograms
 
@@ -115,4 +115,4 @@ def createSlicesFromAudio(pathToAudio, spectrogramsPath, slicesPath, user_args):
 
 
 # Create path if not existing
-check_path_exist(spectrogramsPath)
+check_path_exist(path_to_spectrogram)

@@ -5,8 +5,8 @@ from random import shuffle
 
 import numpy as np
 
-from config import slicesPath, slices_per_genre_ratio_each_genre, number_of_slices_debug, \
-    number_of_slices_before_informing_users, slicesTestPath, nameOfUnknownGenre, my_logger_name
+from config import path_to_slices, slices_per_genre_ratio_each_genre, number_of_slices_debug, \
+    number_of_slices_before_informing_users, path_to_test_slices, nameOfUnknownGenre, my_logger_name
 from dataset.dataset_helper import process_data
 from dataset.dataset_save import save_dataset, save_real_test_dataset, save_file_names
 from imageFilesTools import get_image_data
@@ -25,7 +25,7 @@ def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio,
     for genre in genres:
         my_logger.debug("-> Adding genre {} ({}/{})".format(genre, genre_index, number_of_genres))
         # Get slices in genre subfolder
-        file_names = os.listdir(slicesPath + genre)
+        file_names = os.listdir(path_to_slices + genre)
         file_names = [filename for filename in file_names if filename.endswith('.png')]
         if not user_args.debug:
             slices_per_genre = int(len(file_names) * slices_per_genre_ratio_each_genre[int(genre)])
@@ -98,7 +98,7 @@ def create_real_test_dataset_from_slices(slice_size, files_for_this_batch, real_
     # file_no = 1
 
     pool = mp.Pool(processes=user_args.cpu_number)
-    path = slicesTestPath + nameOfUnknownGenre + "/"
+    path = path_to_test_slices + nameOfUnknownGenre + "/"
     results = [FileNameAndProcess(filename, pool.apply_async(get_image_data, args=(path + filename, slice_size)))
                for filename in files_for_this_batch]
     for result in results:
