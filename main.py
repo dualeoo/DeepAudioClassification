@@ -125,6 +125,7 @@ if __name__ == "__main__":
     debug = user_args.debug
 
     print_intro()
+    exit()
 
     if "slice" == mode_arg:
         process_slices(path_to_raw_data, path_to_spectrogram, path_to_slices)

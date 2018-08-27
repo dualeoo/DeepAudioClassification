@@ -1,9 +1,8 @@
 import logging
 import multiprocessing as mp
+import numpy as np
 import os
 from random import shuffle
-
-import numpy as np
 
 from config import path_to_slices, slices_per_genre_ratio_each_genre, number_of_slices_debug, \
     number_of_slices_before_informing_users, path_to_test_slices, unknown_genre, my_logger_name
@@ -84,7 +83,7 @@ def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio,
         return test_X, test_y
 
 
-class FileNameAndProcess:
+class JobAndFileName:
 
     def __init__(self, file_name, process) -> None:
         self.file_name = file_name
@@ -99,7 +98,7 @@ def create_real_test_dataset_from_slices(slice_size, files_for_this_batch, real_
 
     pool = mp.Pool(processes=os.cpu_count())
     path = path_to_test_slices + unknown_genre + "/"
-    results = [FileNameAndProcess(filename, pool.apply_async(get_image_data, args=(path + filename, slice_size)))
+    results = [JobAndFileName(filename, pool.apply_async(get_image_data, args=(path + filename, slice_size)))
                for filename in files_for_this_batch]
     for result in results:
         file_name = result.file_name
@@ -113,3 +112,48 @@ def create_real_test_dataset_from_slices(slice_size, files_for_this_batch, real_
     save_real_test_dataset(test_real_x, real_test_dataset_name)  # fixmex todox look inside
     save_file_names(file_names, real_test_dataset_name)  # fixmex todox look inside
     return test_real_x, file_names
+
+
+class DataRequiredToCreateDataset:
+    def __init__(self, genre, slice_size, dataset_path, dataset_name, path_to_slices, slice_file_names):
+        self.genre = genre
+        self.slice_size = slice_size
+        self.dataset_path = dataset_path
+        self.dataset_name = dataset_name
+        self.path_to_slices = path_to_slices
+        self.slice_file_names = slice_file_names
+
+
+def create_dataset(required_data: DataRequiredToCreateDataset, user_args: UserArg):
+    data = []
+    pool = mp.Pool(processes=os.cpu_count())
+    path_to_slices_of_genre = required_data.path_to_slices + "{}/".format(required_data.genre)
+    workers = []
+    for filename in required_data.slice_file_names:
+        job = pool.apply_async(get_image_data,
+                               args=(path_to_slices_of_genre + filename, required_data.slice_size))  # TODOx look inside
+        workers.append(JobAndFileName(filename, job))
+    for result in workers:
+        file_name = result.file_name
+        process = result.process
+        img_data = process.get()
+        # fixme
+        label = None
+        data.append((img_data, label, file_name))
+        # if user_args.mode == "train":
+        #     pass
+        # elif user_args.mode == real_test_prefix:
+        #     data.append((img_data, file_name))
+        # else:
+        #     raise Exception("Invalid mode! Mode supposed to be either {} or {}.".format("train", real_test_prefix))
+
+    x, y, file_names = zip(*data)
+    x_np = np.array(x).reshape([-1, required_data.slice_size, required_data.slice_size, 1])
+    y_np = np.array(y)
+    my_logger.info("[+] Dataset for {} created! ✅".format(required_data.genre))
+    return x_np, y_np, file_names
+
+
+def save_dataset_core():
+    # TODO make sure new code call save_dataset_core and save_file_names
+    pass
