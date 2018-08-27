@@ -41,3 +41,8 @@ def load_real_test_dataset(real_test_dataset_name):
     my_logger.info("[+] Testing dataset loaded! ✅")
     file_names = load_file_names(real_test_dataset_name)  # TODOx look inside
     return real_test_x, file_names
+
+
+def load_dataset_core(required_data: DataRequiredToCreateDataset):
+    # TODO task
+    pass

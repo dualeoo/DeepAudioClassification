@@ -7,6 +7,7 @@ from config import batchSize, nbEpoch, sliceSize, validationRatio, testRatio, mo
     number_of_batches_debug, number_of_real_test_files_debug, run_id, show_metric, shuffle_data, snapshot_step, \
     snapshot_epoch, \
     real_test_prefix
+from dataset.dataset_create import DataRequiredToCreateDataset
 from dataset.dataset_get import get_dataset, get_real_test_dataset
 from model import createModel
 from songToData import create_slices_from_audio
@@ -84,22 +85,47 @@ def start_test():
     my_logger.debug("Test ending at {}".format(get_current_time()[0]))
 
 
-def start_test_real():
-    time_starting = log_time_start(user_args.mode)
-    # TODOx handle debug case
-    # Load weights
-    my_logger.info("[+] Loading weights...")
-    model.load(path_to_model)
-    my_logger.info("[+] Weights loaded! ✅")
-    file_names = os.listdir(path_to_test_slices + unknown_genre)
+def test_and_train_core(required_data: DataRequiredToCreateDataset):
+    file_names = os.listdir(required_data.path_to_slices + required_data.genre)
     file_names = [filename for filename in file_names if filename.endswith('.png')]
     if not debug:
         total_number_of_files = len(file_names)
     else:
         total_number_of_files = number_of_real_test_files_debug
     my_logger.info("[+] Total number of slices to process = {}".format(total_number_of_files))
+    my_logger.info("[+] Dataset name: " + dataset_name)
+    # TODO check this
+    if not os.path.isfile(required_data.dataset_path + required_data.dataset_name):
+        my_logger.info("[+] {} is not created. So create it!".format(required_data.dataset_name))
+        return create_dataset(required_data, user_args)
+    else:
+        my_logger.info("[+] Using existing dataset")
+        return load_dataset_core(required_data)
+
+
+
+def start_test_real():
+    time_starting = log_time_start(user_args.mode)
+
+    file_names = os.listdir(path_to_test_slices + unknown_genre)
+    file_names = [filename for filename in file_names if filename.endswith('.png')]
+
+    if not debug:
+        total_number_of_files = len(file_names)
+    else:
+        total_number_of_files = number_of_real_test_files_debug
+
+    my_logger.info("[+] Total number of slices to process = {}".format(total_number_of_files))
     number_of_batches = int(total_number_of_files / batchSize) + 1
     my_logger.info("[+] Total number of batches to run = {}".format(number_of_batches))
+
+    my_logger.info("[+] Loading weights...")
+    model.load(path_to_model)
+    my_logger.info("[+] Weights loaded! ✅")
+    my_logger.info("[+] Total number of slices to process = {}".format(total_number_of_files))
+    number_of_batches = int(total_number_of_files / batchSize) + 1
+    my_logger.info("[+] Total number of batches to run = {}".format(number_of_batches))
+
     final_result = {}
     for i in range(number_of_batches):
         # TODOx look inside

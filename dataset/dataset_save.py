@@ -32,3 +32,10 @@ def save_file_names(file_names, real_test_dataset_name):
     path_file_name = get_path_to_file_names(real_test_dataset_name)
     pickle.dump(file_names, open(path_file_name, "wb"), protocol=4)
     # TODOx
+
+
+def save_dataset_core(dataset, path_to_dataset):
+    # TODO make sure new code call save_dataset_core and save_file_names
+    my_logger.info("[+] Saving dataset... ")
+    pickle.dump(dataset, open(path_to_dataset, "wb"), protocol=4)
+    my_logger.info("[+] Dataset saved! ✅💾")

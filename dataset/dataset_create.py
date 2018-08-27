@@ -152,8 +152,3 @@ def create_dataset(required_data: DataRequiredToCreateDataset, user_args: UserAr
     y_np = np.array(y)
     my_logger.info("[+] Dataset for {} created! ✅".format(required_data.genre))
     return x_np, y_np, file_names
-
-
-def save_dataset_core():
-    # TODO make sure new code call save_dataset_core and save_file_names
-    pass
