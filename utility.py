@@ -2,11 +2,12 @@ import argparse
 import csv
 import logging
 import os
-from sys import stdout
 from functools import reduce
+from sys import stdout
+
 from config import predictResultPath, logging_formatter, time_formatter, log_file_mode, \
     get_current_time_c, my_logger_file_name, my_logger_name, run_id, root_logger_file_name, model_name_config, \
-    realTestDatasetPrefix, pixelPerSecond, desiredSliceSize, sliceSize, batchSize, nbEpoch, learningRate, \
+    real_test_prefix, pixelPerSecond, desiredSliceSize, sliceSize, batchSize, nbEpoch, learningRate, \
     validationRatio, testRatio, slices_per_genre_ratio
 
 my_logger = logging.getLogger(my_logger_name)
@@ -91,9 +92,7 @@ def set_up_logging():
     file_handler_for_root_logger.setLevel(logging.DEBUG)
     file_handler_for_root_logger.setFormatter(formatter)
 
-    my_logger = logging.getLogger(my_logger_name)
     my_logger.setLevel(logging.DEBUG)
-
 
     console = logging.StreamHandler(stdout)
     console.setLevel(logging.DEBUG)
@@ -123,7 +122,7 @@ def handle_args():
     parser.add_argument("--model-name", dest='model_name')
     # parser.add_argument("--cpu", type=int, dest='number_of_cpu', default=number_of_workers)
     parser.add_argument("mode", help="Trains or tests the CNN", choices=["train", "test", "slice", "sliceTest",
-                                                                         realTestDatasetPrefix])
+                                                                         real_test_prefix])
     args = parser.parse_args()
     mode_arg = args.mode
     debug = args.debug
@@ -131,7 +130,7 @@ def handle_args():
     if "train" in mode_arg:
         if not model_name:
             model_name = model_name_config
-    elif "test" in mode_arg or realTestDatasetPrefix in mode_arg:
+    elif "test" in mode_arg or real_test_prefix in mode_arg:
         if not model_name:
             raise Exception('Model name must include in test mode')
     return UserArg(mode_arg, debug, model_name)

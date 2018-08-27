@@ -1,8 +1,8 @@
 import errno
 import os
 
-from config import realTestDatasetPrefix, path_to_slices, slices_per_genre_ratio, real_test_dataset_path, \
-    file_names_path
+from config import real_test_prefix, path_to_slices, slices_per_genre_ratio, real_test_dataset_path, \
+    file_names_path, run_id
 from imageFilesTools import get_image_data
 
 
@@ -16,9 +16,8 @@ def get_default_dataset_name(slice_size, user_args):
     return name
 
 
-def get_real_test_dataset_name(slice_size):
-    real_test_dataset_suffix = "0_{}".format(slice_size)
-    real_test_dataset_name = "{}_X_{}".format(realTestDatasetPrefix, real_test_dataset_suffix)
+def get_real_test_dataset_name():
+    real_test_dataset_name = "{}_X_{}".format(real_test_prefix, run_id)
     return real_test_dataset_name
 
 

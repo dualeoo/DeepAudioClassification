@@ -6,7 +6,7 @@ from random import shuffle
 import numpy as np
 
 from config import path_to_slices, slices_per_genre_ratio_each_genre, number_of_slices_debug, \
-    number_of_slices_before_informing_users, path_to_test_slices, nameOfUnknownGenre, my_logger_name
+    number_of_slices_before_informing_users, path_to_test_slices, unknown_genre, my_logger_name
 from dataset.dataset_helper import process_data
 from dataset.dataset_save import save_dataset, save_real_test_dataset, save_file_names
 from imageFilesTools import get_image_data
@@ -39,7 +39,7 @@ def create_dataset_from_slices(genres, slice_size, validation_ratio, test_ratio,
 
         # Add data (X,y)
         slice_index = 1
-        pool = mp.Pool(processes=user_args.cpu_number)
+        pool = mp.Pool(processes=os.cpu_count())
         results = [pool.apply_async(process_data, args=(filename, genre, genres, slice_size))
                    for filename in file_names]
         for result in results:
@@ -98,7 +98,7 @@ def create_real_test_dataset_from_slices(slice_size, files_for_this_batch, real_
     # file_no = 1
 
     pool = mp.Pool(processes=user_args.cpu_number)
-    path = path_to_test_slices + nameOfUnknownGenre + "/"
+    path = path_to_test_slices + unknown_genre + "/"
     results = [FileNameAndProcess(filename, pool.apply_async(get_image_data, args=(path + filename, slice_size)))
                for filename in files_for_this_batch]
     for result in results:

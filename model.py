@@ -12,9 +12,9 @@ from config import my_logger_name, tensorboard_verbose, checkpoint_path, best_ch
 my_logger = logging.getLogger(my_logger_name)
 
 
-def createModel(nbClasses,imageSize):
+def createModel(nb_classes, image_size):
     my_logger.debug("[+] Creating model...")
-    convnet = input_data(shape=[None, imageSize, imageSize, 1], name='input')
+    convnet = input_data(shape=[None, image_size, image_size, 1], name='input')
 
     convnet = conv_2d(convnet, 64, 2, activation='elu', weights_init="Xavier")
     convnet = max_pool_2d(convnet, 2)
@@ -31,7 +31,7 @@ def createModel(nbClasses,imageSize):
     convnet = fully_connected(convnet, 1024, activation='elu')
     convnet = dropout(convnet, 0.5)
 
-    convnet = fully_connected(convnet, nbClasses, activation='softmax')
+    convnet = fully_connected(convnet, nb_classes, activation='softmax')
     convnet = regression(convnet, optimizer='rmsprop', loss='categorical_crossentropy')
 
     model = tflearn.DNN(convnet, tensorboard_verbose=tensorboard_verbose,

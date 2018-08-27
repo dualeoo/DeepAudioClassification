@@ -1,15 +1,15 @@
 # -*- coding: utf-8 -*-
 import os
 
-from config import batchSize, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, nameOfUnknownGenre, \
+from config import batchSize, nbEpoch, sliceSize, validationRatio, testRatio, modelPath, unknown_genre, \
     path_to_slices, \
     path_to_test_slices, path_to_raw_data, path_to_test_data, path_to_spectrogram, path_to_test_spectrogram, \
     number_of_batches_debug, number_of_real_test_files_debug, run_id, show_metric, shuffle_data, snapshot_step, \
     snapshot_epoch, \
-    realTestDatasetPrefix
+    real_test_prefix
 from dataset.dataset_get import get_dataset, get_real_test_dataset
 from model import createModel
-from songToData import createSlicesFromAudio
+from songToData import create_slices_from_audio
 from utility import save_predict_result, preprocess_predict_result, finalize_result, save_final_result, \
     get_current_time, set_up_logging, handle_args, print_intro
 
@@ -17,7 +17,7 @@ from utility import save_predict_result, preprocess_predict_result, finalize_res
 def process_slices(data_path, spectrogram_path, slice_path):
     time_starting = log_time_start(user_args.mode)
     # TODOx task change to user_args
-    createSlicesFromAudio(data_path, spectrogram_path, slice_path, user_args)
+    create_slices_from_audio(data_path, spectrogram_path, slice_path, user_args)
     log_time_end(user_args.mode, time_starting)
 
 
@@ -91,7 +91,7 @@ def start_test_real():
     my_logger.info("[+] Loading weights...")
     model.load(path_to_model)
     my_logger.info("[+] Weights loaded! ✅")
-    file_names = os.listdir(path_to_test_slices + nameOfUnknownGenre)
+    file_names = os.listdir(path_to_test_slices + unknown_genre)
     file_names = [filename for filename in file_names if filename.endswith('.png')]
     if not debug:
         total_number_of_files = len(file_names)
@@ -148,6 +148,6 @@ if __name__ == "__main__":
         start_test()
         exit()
 
-    if realTestDatasetPrefix == mode_arg:
+    if real_test_prefix == mode_arg:
         start_test_real()
         exit()

@@ -8,8 +8,8 @@ def get_current_time_c():
 
 
 # Name
-nameOfUnknownGenre = "unknownGenre"
-realTestDatasetPrefix = "testReal"
+unknown_genre = "unknownGenre"
+real_test_prefix = "testReal"
 log_file_name = "myLog.log"
 current_time_string, current_time = get_current_time_c()
 run_id = "MusicGenres_" + current_time_string
@@ -18,13 +18,14 @@ log_folder_name = "log/"
 my_logger_file_name = log_folder_name + my_logger_name + ".log"
 model_name_config = run_id
 root_logger_file_name = log_folder_name + run_id + "_root.log"
+real_test_dataset_name = "{}_X_{}".format(real_test_prefix, run_id)
 
 # Define paths for files
 path_to_spectrogram = "Data/Spectrograms/"
 path_to_slices = "Data/Slices/"
 path_to_test_slices = "Data/SlicesTest/"
 dataset_path = "Data/Dataset/"
-real_test_dataset_path = dataset_path + realTestDatasetPrefix + "/"
+real_test_dataset_path = dataset_path + real_test_prefix + "/"
 path_to_raw_data = "Data/Raw/"
 path_to_test_data = "Data/Test/"
 path_to_test_spectrogram = "Data/SpectrogramsTest/"
