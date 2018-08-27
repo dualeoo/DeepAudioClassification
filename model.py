@@ -12,7 +12,7 @@ from config import my_logger_name, tensorboard_verbose, checkpoint_path, best_ch
 my_logger = logging.getLogger(my_logger_name)
 
 
-def createModel(nb_classes, image_size):
+def create_model(nb_classes, image_size):
     my_logger.debug("[+] Creating model...")
     convnet = input_data(shape=[None, image_size, image_size, 1], name='input')
 

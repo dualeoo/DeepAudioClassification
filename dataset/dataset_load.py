@@ -2,6 +2,7 @@ import logging
 import pickle
 
 from config import dataset_path, my_logger_name
+from dataset.dataset_create import DataRequiredToCreateDataset
 from dataset.dataset_helper import get_default_dataset_name, get_path_to_file_names, get_path_to_real_test_dataset
 
 my_logger = logging.getLogger(my_logger_name)

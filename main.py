@@ -7,9 +7,10 @@ from config import batchSize, nbEpoch, sliceSize, validationRatio, testRatio, mo
     number_of_batches_debug, number_of_real_test_files_debug, run_id, show_metric, shuffle_data, snapshot_step, \
     snapshot_epoch, \
     real_test_prefix
-from dataset.dataset_create import DataRequiredToCreateDataset
+from dataset.dataset_create import DataRequiredToCreateDataset, create_dataset
 from dataset.dataset_get import get_dataset, get_real_test_dataset
-from model import createModel
+from dataset.dataset_load import load_dataset_core
+from model import create_model
 from songToData import create_slices_from_audio
 from utility import save_predict_result, preprocess_predict_result, finalize_result, save_final_result, \
     get_current_time, set_up_logging, handle_args, print_intro
@@ -93,7 +94,7 @@ def test_and_train_core(required_data: DataRequiredToCreateDataset):
     else:
         total_number_of_files = number_of_real_test_files_debug
     my_logger.info("[+] Total number of slices to process = {}".format(total_number_of_files))
-    my_logger.info("[+] Dataset name: " + dataset_name)
+    my_logger.info("[+] Dataset name: " + required_data.dataset_name)
     # TODO check this
     if not os.path.isfile(required_data.dataset_path + required_data.dataset_name):
         my_logger.info("[+] {} is not created. So create it!".format(required_data.dataset_name))
@@ -101,7 +102,6 @@ def test_and_train_core(required_data: DataRequiredToCreateDataset):
     else:
         my_logger.info("[+] Using existing dataset")
         return load_dataset_core(required_data)
-
 
 
 def start_test_real():
@@ -165,7 +165,7 @@ if __name__ == "__main__":
     genres, nbClasses = get_gernes_and_classes()
 
     # Create model
-    model = createModel(nbClasses, sliceSize)
+    model = create_model(nbClasses, sliceSize)
     path_to_model = '{}{}'.format(modelPath, user_args.model_name)
 
     if "train" == mode_arg:

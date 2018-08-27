@@ -16,12 +16,12 @@ with open(trainDataLabelPath, 'r') as f:
 eyed3.log.setLevel("ERROR")
 
 
-def isMono(filename):
+def is_mono(filename):
     audiofile = eyed3.load(filename)
     return audiofile.info.mode == 'Mono'
 
 
-def getGenre(filepath):
+def get_genre(filepath):
     # TODOx re-implement
     # audiofile = eyed3.load(filename)
     filename = (filepath.split("/"))[2]

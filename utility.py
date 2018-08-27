@@ -12,6 +12,7 @@ from config import predictResultPath, logging_formatter, time_formatter, log_fil
 
 my_logger = logging.getLogger(my_logger_name)
 
+
 def process_file_name(file_name):
     split_result = file_name.split("_")
     return split_result[2], split_result[3]  # TODOx
