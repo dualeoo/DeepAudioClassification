@@ -32,7 +32,7 @@ def get_dataset(genres, slice_size, validation_ratio, test_ratio, user_args):
     else:
         my_logger.debug("[+] Using existing dataset")
         # TODOx user_args
-        return load_dataset(slice_size, user_args)
+        return load_dataset(slice_size, user_args)  # TODOx look inside
 
 
 def get_real_test_dataset(number_of_batches, file_names, i, user_args):
@@ -48,7 +48,7 @@ def get_real_test_dataset(number_of_batches, file_names, i, user_args):
         starting_file = i * batchSize
         ending_file = starting_file + batchSize
         return create_real_test_dataset_from_slices(sliceSize, file_names[starting_file:ending_file],
-                                                    dataset_name, user_args)  # TODOx look inside
+                                                    dataset_name)  # TODOx look inside
     else:
         my_logger.debug("[+] Using existing dataset")
         return load_real_test_dataset(dataset_name)  # TODOx look inside

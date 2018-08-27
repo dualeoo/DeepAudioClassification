@@ -102,10 +102,11 @@ def start_test_real():
     my_logger.info("[+] Total number of batches to run = {}".format(number_of_batches))
     final_result = {}
     for i in range(number_of_batches):
-        x, file_names_subset = get_real_test_dataset(number_of_batches, file_names, i, user_args)  # TODOx look inside
-        predictResult = model.predict(x)
-        predictResult = preprocess_predict_result(predictResult)  # TODOx look inside
-        save_predict_result(predictResult, file_names_subset, final_result)  # TODOx look inside
+        # TODOx look inside
+        x_dataset, file_names_subset = get_real_test_dataset(number_of_batches, file_names, i, user_args)
+        predict_result = model.predict(x_dataset)
+        predict_result = preprocess_predict_result(predict_result)  # TODOx look inside
+        save_predict_result(predict_result, file_names_subset, final_result)  # TODOx look inside
         my_logger.info("[+] Finish process batch {} of {}".format(i + 1, number_of_batches))
         if debug and i == number_of_batches_debug:
             break

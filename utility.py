@@ -12,7 +12,6 @@ from config import predictResultPath, logging_formatter, time_formatter, log_fil
 
 my_logger = logging.getLogger(my_logger_name)
 
-
 def process_file_name(file_name):
     split_result = file_name.split("_")
     return split_result[2], split_result[3]  # TODOx
@@ -36,11 +35,14 @@ def save_predict_result(predict_results, file_names, final_result):
 
 def preprocess_predict_result(predict_results):
     max_length = len(predict_results)
+    # TODO task ask Q to explain
     max_number = reduce(lambda pre, cur: pre + cur[0], predict_results, 0) / max_length
     for i in range(1, max_length - 1):
         total = reduce(lambda pre, cur: pre + cur[i], predict_results, 0) / max_length
         if total > max_number:
             max_number = total
+    # TODO task debug Q code
+    exit()
     return max_number  # TODOx
 
 

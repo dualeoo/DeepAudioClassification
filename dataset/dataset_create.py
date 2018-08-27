@@ -91,13 +91,13 @@ class FileNameAndProcess:
         self.process = process
 
 
-def create_real_test_dataset_from_slices(slice_size, files_for_this_batch, real_test_dataset_name, user_args):
+def create_real_test_dataset_from_slices(slice_size, files_for_this_batch, real_test_dataset_name):
     # TODOx task user_args
     # number_of_files_for_this_batch = len(files_for_this_batch)
     data = []
     # file_no = 1
 
-    pool = mp.Pool(processes=user_args.cpu_number)
+    pool = mp.Pool(processes=os.cpu_count())
     path = path_to_test_slices + unknown_genre + "/"
     results = [FileNameAndProcess(filename, pool.apply_async(get_image_data, args=(path + filename, slice_size)))
                for filename in files_for_this_batch]
@@ -109,7 +109,7 @@ def create_real_test_dataset_from_slices(slice_size, files_for_this_batch, real_
 
     x, file_names = zip(*data)  # TODOx be careful. The way I extract file_names might be wrong
     test_real_x = np.array(x).reshape([-1, slice_size, slice_size, 1])  # TODOx why -1
-    my_logger.debug("[+] Dataset created! ✅")
+    my_logger.info("[+] Dataset created! ✅")
     save_real_test_dataset(test_real_x, real_test_dataset_name)  # fixmex todox look inside
     save_file_names(file_names, real_test_dataset_name)  # fixmex todox look inside
     return test_real_x, file_names

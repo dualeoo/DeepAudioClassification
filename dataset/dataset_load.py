@@ -38,6 +38,6 @@ def load_real_test_dataset(real_test_dataset_name):
     my_logger.info("[+] Loading REAL testing dataset... ")
     path_to_dataset = get_path_to_real_test_dataset(real_test_dataset_name)
     real_test_x = pickle.load(open(path_to_dataset, "rb"))
-    my_logger.debug("[+] Testing dataset loaded! ✅")
+    my_logger.info("[+] Testing dataset loaded! ✅")
     file_names = load_file_names(real_test_dataset_name)  # TODOx look inside
     return real_test_x, file_names
