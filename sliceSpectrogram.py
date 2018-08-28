@@ -6,7 +6,7 @@ from PIL import Image
 
 # Slices all spectrograms
 from config import my_logger_name, run_id
-from dataset.dataset_helper import check_path_exist
+from utility import check_path_exist
 
 my_logger = logging.getLogger(my_logger_name)
 
@@ -17,7 +17,7 @@ def create_slices_from_spectrogram(desired_size, spectrograms_path, slices_path)
     for filename in file_names:
         if filename.endswith(".png"):
             slice_spectrogram(filename, desired_size, spectrograms_path, slices_path)  # TODOx look inside
-            my_logger.debug("Finish slicing for file {}/{}".format(index, len(file_names)))
+            my_logger.info("Finish slicing for file {}/{}".format(index, len(file_names)))
             index += 1
 
 
@@ -44,7 +44,7 @@ def slice_spectrogram(filename, desired_slice_size, spectrograms_path, slices_pa
 
     # For each sample
     for slice_id in range(nb_samples):
-        # my_logger.debug("Creating slice: ", (i + 1), "/", nb_samples, "for", filename)
+        # my_logger.info("Creating slice: ", (i + 1), "/", nb_samples, "for", filename)
         # Extract and save 128x128 sample
         start_pixel = slice_id * desired_slice_size
         img_tmp = img.crop((start_pixel, 1, start_pixel + desired_slice_size, desired_slice_size + 1))

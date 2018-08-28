@@ -1,16 +1,17 @@
 import argparse
 import csv
+import datetime
+import errno
 import logging
 import os
 from functools import reduce
 from sys import stdout
 
-from config import predictResultPath, logging_formatter, time_formatter, log_file_mode, \
-    get_current_time_c, my_logger_file_name, my_logger_name, run_id, root_logger_file_name, model_name_config, \
-    real_test_prefix, pixelPerSecond, desiredSliceSize, sliceSize, batchSize, nbEpoch, learningRate, \
-    validationRatio, testRatio, slices_per_genre_ratio
+import config
 
-my_logger = logging.getLogger(my_logger_name)
+# fixmeX
+
+my_logger = logging.getLogger(config.my_logger_name)
 
 
 def process_file_name(file_name):
@@ -19,7 +20,7 @@ def process_file_name(file_name):
 
 
 def save_predict_result(predict_results, file_names, final_result):
-    # TODO task debug value of all variables in this method
+    # TODO debug value of all variables in this method
     for i in range(len(predict_results)):
         predict_result = predict_results[i]
         file_name = file_names[i]
@@ -36,13 +37,13 @@ def save_predict_result(predict_results, file_names, final_result):
 
 def preprocess_predict_result(predict_results):
     max_length = len(predict_results)
-    # TODO task ask Q to explain
+    # TODO ask Q to explain
     max_number = reduce(lambda pre, cur: pre + cur[0], predict_results, 0) / max_length
     for i in range(1, max_length - 1):
         total = reduce(lambda pre, cur: pre + cur[i], predict_results, 0) / max_length
         if total > max_number:
             max_number = total
-    # TODO task debug Q code
+    # TODO debug Q code
     exit()
     return max_number  # TODOx
 
@@ -62,7 +63,7 @@ def get_current_time():
 
 
 def save_final_result(final_result):
-    with open(predictResultPath + "{}.csv".format(run_id), mode='w') as f:
+    with open(config.predict_result_path + "{}.csv".format(config.run_id), mode='w') as f:
         csv_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
         csv_writer.writerow(["Id", "Genre"])
         for file_name, genre in final_result.items():
@@ -70,12 +71,12 @@ def save_final_result(final_result):
 
 
 def find_max_genre(result):
-    genres = list(result.keys())
-    first_genre = genres[0]
+    genres_n = list(result.keys())
+    first_genre = genres_n[0]
     final_genre = first_genre
     max_freq = result[first_genre]
 
-    for genre in genres:
+    for genre in genres_n:
         freq = result[genre]
         if freq > max_freq:
             final_genre = genre
@@ -85,13 +86,13 @@ def find_max_genre(result):
 
 
 def set_up_logging():
-    formatter = logging.Formatter(logging_formatter, time_formatter)
+    formatter = logging.Formatter(config.logging_formatter, config.time_formatter)
 
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)
     root_logger.handlers[0].setLevel(logging.WARNING)
 
-    file_handler_for_root_logger = logging.FileHandler(root_logger_file_name, log_file_mode)
+    file_handler_for_root_logger = logging.FileHandler(config.root_logger_file_name, config.log_file_mode)
     file_handler_for_root_logger.setLevel(logging.DEBUG)
     file_handler_for_root_logger.setFormatter(formatter)
 
@@ -101,7 +102,7 @@ def set_up_logging():
     console.setLevel(logging.DEBUG)
     # console.setFormatter(formatter)
 
-    file_handler = logging.FileHandler(my_logger_file_name, log_file_mode)
+    file_handler = logging.FileHandler(config.my_logger_file_name, config.log_file_mode)
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
 
@@ -112,11 +113,11 @@ def set_up_logging():
 
 
 class UserArg:
-    def __init__(self, mode, debug, model_name):
+    def __init__(self, mode, debug, model_name, run_id_for_mode_test):
         self.mode = mode
         self.debug = debug
         self.model_name = model_name
-        self.cpu_number = os.cpu_count()
+        self.run_id_for_mode_test = run_id_for_mode_test
 
 
 def handle_args():
@@ -125,37 +126,87 @@ def handle_args():
     parser.add_argument("--model-name", dest='model_name')
     # parser.add_argument("--cpu", type=int, dest='number_of_cpu', default=number_of_workers)
     parser.add_argument("mode", help="Trains or tests the CNN", choices=["train", "test", "slice", "sliceTest",
-                                                                         real_test_prefix])
+                                                                         config.real_test_prefix])
+    parser.add_argument("--run-id-for-test",
+                        help="This is the run_in corresponding with the test dataset using with mode test",
+                        dest="run_id_for_mode_test")
+
     args = parser.parse_args()
     mode_arg = args.mode
     debug = args.debug
     model_name = args.model_name
-    if "train" in mode_arg:
+    run_id_for_mode_test = args.run_id_for_mode_test
+
+    if "train" == mode_arg:
         if not model_name:
-            model_name = model_name_config
-    elif "test" in mode_arg or real_test_prefix in mode_arg:
+            model_name = config.model_name_config
+    elif "test" == mode_arg or config.real_test_prefix == mode_arg:
         if not model_name:
-            raise Exception('Model name must include in test mode')
-    return UserArg(mode_arg, debug, model_name)
+            raise Exception('Model name must include in test and testReal mode')
+    return UserArg(mode_arg, debug, model_name, run_id_for_mode_test)
 
 
 def print_intro():
-    my_logger.debug("--------------------------")
-    my_logger.debug("| *** Config *** ")
-    my_logger.debug("| Pixel per second: {}".format(pixelPerSecond))
-    my_logger.debug("| Cut image into slice of {}px width".format(desiredSliceSize))
-    my_logger.debug("| Resize cut slice to {}px x {}px".format(sliceSize, sliceSize))
-    my_logger.debug("|")
-    my_logger.debug("| Batch size: {}".format(batchSize))
-    my_logger.debug("| Number of epoch: {}".format(nbEpoch))
-    my_logger.debug("| Learning rate: {}".format(learningRate))
-    my_logger.debug("|")
-    my_logger.debug("| Validation ratio: {}".format(validationRatio))
-    my_logger.debug("| Test ratio: {}".format(testRatio))
-    my_logger.debug("|")
-    # my_logger.debug("| Slices per genre: {}".format(slicesPerGenre))
-    my_logger.debug("| Slices per genre ratio: {}".format(str(slices_per_genre_ratio)))
-    my_logger.debug("|")
-    my_logger.debug("| Run_ID: {}".format(run_id))
-    my_logger.debug("--------------------------")
-    # TODO task print other config
+    my_logger.info("--------------------------")
+    my_logger.info("| *** Config *** ")
+    my_logger.info("| Pixel per second: {}".format(config.pixelPerSecond))
+    my_logger.info("| Cut image into slice of {}px width".format(config.desiredSliceSize))
+    my_logger.info("| Resize cut slice to {}px x {}px".format(config.slice_size, config.slice_size))
+    my_logger.info("|")
+    my_logger.info("| Batch size: {}".format(config.batchSize))
+    my_logger.info("| Number of epoch: {}".format(config.nbEpoch))
+    my_logger.info("| Learning rate: {}".format(config.learningRate))
+    my_logger.info("|")
+    my_logger.info("| Validation ratio: {}".format(config.validation_ratio))
+    my_logger.info("| Test ratio: {}".format(config.test_ratio))
+    my_logger.info("|")
+    # my_logger.info("| Slices per genre: {}".format(slicesPerGenre))
+    my_logger.info("| Slices per genre ratio: {}".format(str(config.slices_per_genre_ratio)))
+    my_logger.info("|")
+    my_logger.info("| Run_ID: {}".format(config.run_id))
+    my_logger.info("--------------------------")
+    # TODO print other config
+
+
+def log_time_start(mode):
+    return log_time_helper(mode)
+
+
+def log_time_end(mode, time_starting):
+    current_time = log_time_helper(mode, False)
+    total_amount_of_time = current_time[1] - time_starting[1]
+    my_logger.info("[+] Total amount of time it takes to complete the task is {}".format(
+        str(total_amount_of_time)))
+    return current_time
+
+
+def log_time_helper(mode, is_starting=True):
+    if is_starting:
+        w = "starting"
+    else:
+        w = "ending"
+    current_time = get_current_time()
+    my_logger.info("[+] Mode = {}; {} at {}".format(mode, w, current_time[0]))
+    return current_time
+
+
+def get_gernes_and_classes():
+    genres = os.listdir(config.path_to_slices_for_training)
+    genres = [genre for genre in genres if os.path.isdir(config.path_to_slices_for_training + genre)]
+    nb_classes = len(genres)
+    return genres, nb_classes
+
+
+def check_path_exist(path):
+    if not os.path.exists(os.path.dirname(path)):
+        try:
+            os.makedirs(os.path.dirname(path))
+        except OSError as exc:  # Guard against race condition
+            if exc.errno != errno.EEXIST:
+                raise
+
+
+def get_current_time_c():
+    current_time_l = datetime.datetime.now()
+    current_time_string_l = current_time_l.strftime("%Y%m%d_%H%M")
+    return current_time_string_l, current_time_l  # fixmex (second element returned)

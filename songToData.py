@@ -6,21 +6,16 @@ from subprocess import Popen, PIPE, STDOUT
 
 import eyed3
 
+import config
 from audioFilesTools import is_mono, get_genre
-from config import desiredSliceSize, pixelPerSecond, unknown_genre, numberOfTrainRawFilesToProcessInDebugMode, \
-    path_to_spectrogram, my_logger_name, run_id
-from dataset.dataset_helper import check_path_exist
 from sliceSpectrogram import create_slices_from_spectrogram
-
-# Tweakable parameters
-
 
 # Define
 currentPath = os.path.dirname(os.path.realpath(__file__))
 
 # Remove logs
 eyed3.log.setLevel("ERROR")
-my_logger = logging.getLogger(my_logger_name)
+my_logger = logging.getLogger(config.my_logger_name)
 
 
 # Create spectrogram from mp3 files
@@ -38,16 +33,17 @@ def create_spectrogram_core(filename, new_filename, path_to_audio, spectrograms_
     p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, cwd=currentPath)
     output, errors = p.communicate()
     if errors:
-        my_logger.debug(errors)
+        my_logger.error(errors)
 
     # Create spectrogram
     # filename.replace(".mp3", "") # TODOpro why do this? I comment out it. Be careful.
-    command = "sox '/tmp/{}.mp3' -n spectrogram -Y 200 -X {} -m -r -o '{}.png'".format(new_filename, pixelPerSecond,
-                                                                                       spectrograms_path + new_filename)
+    command = "sox '/tmp/{}.mp3' -n spectrogram " \
+              "-Y 200 -X {} -m -r -o '{}.png'".format(new_filename, config.pixelPerSecond,
+                                                      spectrograms_path + new_filename)
     p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, cwd=currentPath)
     output, errors = p.communicate()
     if errors:
-        my_logger.debug(errors)
+        my_logger.error(errors)
 
     # Remove tmp mono track
     os.remove("/tmp/{}.mp3".format(new_filename))
@@ -64,16 +60,16 @@ def create_spectrogram(path_to_audio, spectrograms_path, user_args):
     # TODOx process debug
     for index, filename in enumerate(files):
         # TODOx process user_args
-        my_logger.debug("Creating spectrogram for file {}/{}...".format(index + 1, nb_files))
+        my_logger.info("Creating spectrogram for file {}/{}...".format(index + 1, nb_files))
         # TODOx user_args
         new_filename = get_spectrogram_name(filename, genres_id, index, path_to_audio, user_args)  # TODOx look inside
         # TODOx if spectrogram already exist, do not create
         file = Path('{}{}'.format(path_to_audio, new_filename))
         if file.exists():
-            my_logger.debug("{} already exists so no spectrogram create!".format(new_filename))
+            my_logger.info("{} already exists so no spectrogram create!".format(new_filename))
         else:
             create_spectrogram_core(filename, new_filename, path_to_audio, spectrograms_path)  # TODOx look inside
-        if user_args.debug and index >= numberOfTrainRawFilesToProcessInDebugMode:
+        if user_args.debug and index >= config.numberOfTrainRawFilesToProcessInDebugMode:
             break
 
 
@@ -87,8 +83,8 @@ def get_spectrogram_name(filename, genres_id, index, path_to_audio, user_args):
         file_id = genres_id[genre_id]
     elif "sliceTest" in mode:
         file_id = index + 1
-        genre_id = unknown_genre
-    new_filename = "{}_{}_{}_{}".format(run_id, genre_id, file_id, filename[:-4])
+        genre_id = config.unknown_genre
+    new_filename = "{}_{}_{}_{}".format(config.run_id, genre_id, file_id, filename[:-4])
     return new_filename
 
 
@@ -100,9 +96,5 @@ def create_slices_from_audio(path_to_audio, spectrograms_path, slices_path, user
     my_logger.info("Spectrograms created!")
 
     my_logger.info("Creating slices...")
-    create_slices_from_spectrogram(desiredSliceSize, spectrograms_path, slices_path)  # TODOx look inside
+    create_slices_from_spectrogram(config.desiredSliceSize, spectrograms_path, slices_path)  # TODOx look inside
     my_logger.info("Slices created!")
-
-
-# Create path if not existing
-check_path_exist(path_to_spectrogram)
