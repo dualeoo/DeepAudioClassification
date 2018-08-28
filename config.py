@@ -1,11 +1,11 @@
-from utility import get_current_time_c
+from utility import get_current_time
 
 # Name
 # TODO recheck this section one day
 unknown_genre = "unknownGenre"
 real_test_prefix = "testReal"
 log_file_name = "myLog.log"
-current_time_string, current_time = get_current_time_c()
+current_time_string, current_time = get_current_time()
 run_id = "MusicGenres_" + current_time_string
 my_logger_name = run_id
 log_folder_name = "log/"
@@ -30,8 +30,8 @@ train_data_label_path = "Data/train.csv"
 predict_result_path = "Data/PredictResult/"
 
 # Spectrogram resolution and Slices
-pixelPerSecond = 50
-desiredSliceSize = pixelPerSecond * 3
+pixel_per_second = 50
+desired_slice_size = pixel_per_second * 3
 slice_size = 128  # Slice parameters - this will be the size the original image is resized to
 slices_per_genre_ratio = 1.0  # TODOx be careful. THis might cause memory error latter
 slices_per_genre_ratio_each_genre = {1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1, 10: 1, }

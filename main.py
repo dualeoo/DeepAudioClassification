@@ -4,15 +4,20 @@ import config
 import utility
 from dataset import GetDataset, DatasetHelper
 from model import create_model
-from songToData import create_slices_from_audio
-from test import Test
-from training import Training
+from modes import CreateSpectrogram, CreateSlice, Training, Test
 
 
-def process_slices(data_path, spectrogram_path, slice_path):
+def create_spectrogram_and_slices(path_to_audio, spectrogram_path, slice_path):
     time_starting = utility.log_time_start(user_args.mode)
-    # TODOx task change to user_args
-    create_slices_from_audio(data_path, spectrogram_path, slice_path, user_args)
+
+    my_logger.info("Creating spectrograms...")
+    CreateSpectrogram(path_to_audio, spectrogram_path, user_args).start()
+    my_logger.info("Spectrograms created!")
+
+    my_logger.info("Creating slices...")
+    CreateSlice(config.desired_slice_size, spectrogram_path, slice_path).start()
+    my_logger.info("Slices created!")
+
     utility.log_time_end(user_args.mode, time_starting)
 
 
@@ -50,12 +55,14 @@ if __name__ == "__main__":
     utility.print_intro()
 
     if "slice" == user_args.mode:
-        # TODO look inside process_slices one day
-        process_slices(config.path_to_raw_data, config.path_to_spectrogram, config.path_to_slices_for_training)
+        # TODOx look inside process_slices one day
+        create_spectrogram_and_slices(config.path_to_raw_data, config.path_to_spectrogram,
+                                      config.path_to_slices_for_training)
         exit()
 
     if "sliceTest" == user_args.mode:
-        process_slices(config.path_to_test_data, config.path_to_test_spectrogram, config.path_to_slices_for_testing)
+        create_spectrogram_and_slices(config.path_to_test_data, config.path_to_test_spectrogram,
+                                      config.path_to_slices_for_testing)
         exit()
 
     genres, nb_classes = utility.get_gernes_and_classes()

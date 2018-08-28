@@ -14,6 +14,14 @@ import config
 my_logger = logging.getLogger(config.my_logger_name)
 
 
+class UserArg:
+    def __init__(self, mode, debug, model_name, run_id_for_mode_test):
+        self.mode = mode
+        self.debug = debug
+        self.model_name = model_name
+        self.run_id_for_mode_test = run_id_for_mode_test
+
+
 def process_file_name(file_name):
     split_result = file_name.split("_")
     return split_result[2], split_result[3]  # TODOx
@@ -55,11 +63,6 @@ def finalize_result(final_result):
         genre = find_max_genre(result)  # TODOx task look inside
         final_result[filename] = genre
     return final_result  # TODOx
-
-
-def get_current_time():
-    # fixmex task now return tuple
-    return get_current_time_c()
 
 
 def save_final_result(final_result):
@@ -112,14 +115,6 @@ def set_up_logging():
     return my_logger
 
 
-class UserArg:
-    def __init__(self, mode, debug, model_name, run_id_for_mode_test):
-        self.mode = mode
-        self.debug = debug
-        self.model_name = model_name
-        self.run_id_for_mode_test = run_id_for_mode_test
-
-
 def handle_args():
     parser = argparse.ArgumentParser()
     parser.add_argument("--debug", default=False, action="store_true")
@@ -149,8 +144,8 @@ def handle_args():
 def print_intro():
     my_logger.info("--------------------------")
     my_logger.info("| *** Config *** ")
-    my_logger.info("| Pixel per second: {}".format(config.pixelPerSecond))
-    my_logger.info("| Cut image into slice of {}px width".format(config.desiredSliceSize))
+    my_logger.info("| Pixel per second: {}".format(config.pixel_per_second))
+    my_logger.info("| Cut image into slice of {}px width".format(config.desired_slice_size))
     my_logger.info("| Resize cut slice to {}px x {}px".format(config.slice_size, config.slice_size))
     my_logger.info("|")
     my_logger.info("| Batch size: {}".format(config.batchSize))
@@ -206,7 +201,7 @@ def check_path_exist(path):
                 raise
 
 
-def get_current_time_c():
+def get_current_time():
     current_time_l = datetime.datetime.now()
     current_time_string_l = current_time_l.strftime("%Y%m%d_%H%M")
     return current_time_string_l, current_time_l  # fixmex (second element returned)

@@ -4,9 +4,9 @@ import os
 from random import shuffle
 
 import numpy as np
+from PIL import Image
 
 import config
-from imageFilesTools import get_image_data
 
 my_logger = logging.getLogger(config.my_logger_name)
 
@@ -91,6 +91,18 @@ class GetDataset:
             total_number_of_files = config.number_of_slices_debug
         return total_number_of_files
 
+    def get_processed_data(self, img):
+        img = img.resize((self.slice_size, self.slice_size), resample=Image.ANTIALIAS)
+        # Note thong tin ve image name bi mat tu day
+        img_data = np.asarray(img, dtype=np.uint8).reshape(self.slice_size, self.slice_size, 1)
+        img_data = img_data / 255.
+        return img_data
+
+    def get_image_data(self, path_to_slice):
+        img = Image.open(path_to_slice)
+        img_data = self.get_processed_data(img)
+        return img_data
+
     def create(self, slice_file_names, slices_per_genre):
         data = []
         pool = mp.Pool(processes=os.cpu_count())
@@ -98,8 +110,8 @@ class GetDataset:
         # TODOx task
         for filename in slice_file_names:
             path_to_slice = self.path_to_slices_of_genre + filename
-            job = pool.apply_async(get_image_data,
-                                   args=(path_to_slice, self.slice_size))  # TODOx look inside
+            job = pool.apply_async(self.get_image_data,
+                                   args=(path_to_slice,))  # TODOx look inside
             workers.append(JobAndFileName(filename, job))
 
         slice_index = 1
