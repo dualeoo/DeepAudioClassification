@@ -62,6 +62,7 @@ class CreateSpectrogram:
         p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, cwd=currentPath)
         output, errors = p.communicate()
         if errors:
+            my_logger.error("Errors when using Popen")
             my_logger.error(errors)
             exit()
 
@@ -73,6 +74,7 @@ class CreateSpectrogram:
         p = Popen(command, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, cwd=currentPath)
         output, errors = p.communicate()
         if errors:
+            my_logger.error("Errors when using Popen")
             my_logger.error(errors)
 
         # Remove tmp mono track
@@ -87,20 +89,23 @@ class CreateSpectrogram:
         # TODOx make this multi-processing
         # TODOx look at all files currently present in the project
         pool = multiprocessing.Pool(processes=os.cpu_count())
+        workers = []
         for index, filename in enumerate(files):
             my_logger.info("Creating spectrogram for file {}/{}...".format(index + 1, nb_files))
             new_filename = self.get_spectrogram_name(filename, genres_id, index)  # TODOx look inside
+            # TODO show comes path is Data/train/MusicGenres_20180828_2320_6_1_8339573394770541951
             file = Path('{}{}'.format(self.path_to_audio, new_filename))
             if file.exists():
                 my_logger.info("{} already exists so no spectrogram create!".format(new_filename))
             else:
-                pool.apply_async(self.create_spectrogram_core,
-                                 args=(filename, new_filename))
+                worker = pool.apply_async(self.create_spectrogram_core,
+                                          args=(filename, new_filename))
+                workers.append(worker)
             if self.user_args.debug and index >= config.numberOfTrainRawFilesToProcessInDebugMode:
                 break
 
-        pool.close()
-        pool.join()
+        for worker in workers:
+            worker.wait()
 
     def get_spectrogram_name(self, filename, genres_id, index):
         mode = self.user_args.mode

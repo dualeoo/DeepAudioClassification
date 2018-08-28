@@ -1,6 +1,5 @@
 import argparse
 import csv
-import datetime
 import errno
 import logging
 import os
@@ -8,8 +7,8 @@ from functools import reduce
 from sys import stdout
 
 import config
-
 # fixmeX
+from config import get_current_time
 
 my_logger = logging.getLogger(config.my_logger_name)
 
@@ -201,7 +200,3 @@ def check_path_exist(path):
                 raise
 
 
-def get_current_time():
-    current_time_l = datetime.datetime.now()
-    current_time_string_l = current_time_l.strftime("%Y%m%d_%H%M")
-    return current_time_string_l, current_time_l  # fixmex (second element returned)

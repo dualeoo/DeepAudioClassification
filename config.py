@@ -1,10 +1,17 @@
-from utility import get_current_time
-
-# Name
 # TODO recheck this section one day
+import datetime
+
 unknown_genre = "unknownGenre"
 real_test_prefix = "testReal"
 log_file_name = "myLog.log"
+
+
+def get_current_time():
+    current_time_l = datetime.datetime.now()
+    current_time_string_l = current_time_l.strftime("%Y%m%d_%H%M")
+    return current_time_string_l, current_time_l  # fixmex (second element returned)
+
+
 current_time_string, current_time = get_current_time()
 run_id = "MusicGenres_" + current_time_string
 my_logger_name = run_id
@@ -15,8 +22,8 @@ root_logger_file_name = log_folder_name + run_id + "_root.log"
 real_test_dataset_name = "{}_X_{}".format(real_test_prefix, run_id)
 
 # Define paths for files
-path_to_raw_data = "Data/Raw/"
-path_to_test_data = "Data/Test/"
+path_to_raw_data = "Data/train/"
+path_to_test_data = "Data/test/"
 
 path_to_spectrogram = "Data/Spectrograms/"
 path_to_test_spectrogram = "Data/SpectrogramsTest/"
