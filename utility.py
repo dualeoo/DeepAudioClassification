@@ -198,7 +198,7 @@ def log_time_helper(mode, is_starting=True):
 
 
 def get_gernes_and_classes(active_config):
-    # fixme
+    # fixmeX
     genres = os.listdir(active_config.path_to_slices_for_training)
     genres = [genre for genre in genres if os.path.isdir(active_config.path_to_slices_for_training + genre)]
     nb_classes = len(genres)
