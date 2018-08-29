@@ -24,6 +24,7 @@ class DatasetHelper:
         self.dataset_name = dataset_name
         self.path_to_folder_containing_dataset = path_to_dataset
         self.path_to_dataset = self.path_to_folder_containing_dataset + self.dataset_name + "_"
+        # fixme remove the underscore when creating new dataset next time
         self.name_of_x = "{}_X.p".format(self.path_to_dataset)
         self.name_of_y = "{}_Y.p".format(self.path_to_dataset)
         self.name_of_file_name = "{}_FN.p".format(self.path_to_dataset)
@@ -38,9 +39,9 @@ class DatasetHelper:
     def load(self):
         # TODOx task
         my_logger.info("[+] Loading dataset {}".format(self.dataset_name))
-        x_np = np.pickle.load(open(self.name_of_x, "rb"))
-        y_np = np.pickle.load(open(self.name_of_y, "rb"))
-        file_names = np.pickle.load(open(self.name_of_file_name, "rb"))
+        x_np = pickle.load(open(self.name_of_x, "rb"))
+        y_np = pickle.load(open(self.name_of_y, "rb"))
+        file_names = pickle.load(open(self.name_of_file_name, "rb"))
         my_logger.info("[+] Dataset loaded! ✅")
         return Dataset(x_np, y_np, file_names)
 

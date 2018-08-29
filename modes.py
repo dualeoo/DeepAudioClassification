@@ -6,16 +6,17 @@ import os
 from pathlib import Path
 from random import shuffle
 from subprocess import Popen, PIPE, STDOUT
+from typing import Sequence, Dict
 
 import eyed3
 import numpy as np
 from PIL import Image
 
+import MainHelper
 import config
-import utility
+from MainHelper import check_path_exist, log_time_start, log_time_end
 from dataset import GetDataset, DatasetHelper, Dataset
 from model import create_model
-from utility import check_path_exist, log_time_start, log_time_end
 
 currentPath = os.path.dirname(os.path.realpath(__file__))
 # Remove logs
@@ -235,7 +236,7 @@ class Training:
             self.my_logger.info("[+] Creating dataset for genre {} ({}/{})".format(genre, genre_index,
                                                                                    number_of_genres))
             # TODOx dataset_name in this case?
-            dataset_name = "{}_{}".format(genre, self.active_config.run_id)
+            dataset_name = "{}_{}".format(genre, self.user_args.run_id)
             # TODOx look inside
             # fixmeX
             # TODOx run inspection
@@ -261,25 +262,27 @@ class Training:
             self.my_logger.info("[+] Loading dataset for genre {} ({}/{})".format(genre, genre_index,
                                                                                   number_of_genres))
             # TODOx dataset_name in this case?
-            dataset_name = "{}_{}".format(genre, config.run_id)
+            dataset_name = "{}_{}".format(genre, self.user_args.run_id)
             dataset = DatasetHelper(dataset_name, config.dataset_path).load()
             all_dataset.append(dataset)
             genre_index += 1
 
         return all_dataset
 
-    @staticmethod
-    def zip_again(all_dataset):
+    def zip_again(self, all_dataset):
+        self.my_logger.info("[+] Start zipping all files")
         # TODOx task
         array_of_array_of_data_points = []
         for dataset in all_dataset:
             zipped_dataset = zip(dataset.x_np, dataset.y_np, dataset.file_names)
             array_of_array_of_data_points.append(zipped_dataset)
+        self.my_logger.info("[+] Finish zipping all files")
         return array_of_array_of_data_points
 
     def divide_into_three_set(self, data):
         # TODOx task
         # Shuffle data
+        self.my_logger.info("[+] Start dividing into Train, Validation, and Test")
         shuffle(data)
 
         # Split data
@@ -302,16 +305,15 @@ class Training:
         y_val = np.array(y_val)
         x_test = np.array(x_test).reshape([-1, config.slice_size, config.slice_size, 1])
         y_test = np.array(y_test)
-        self.my_logger.info("[+] Dataset created! ✅")
+        self.my_logger.info("[+] Finish dividing into three sets! ✅")
         # TODOx fix those using divide_into_three_set
         return Dataset(x_train, y_train, fn_train), Dataset(x_val, y_val, fn_val), Dataset(x_test, y_test, fn_test)
 
-    @staticmethod
-    def save_the_three_dataset(train, validation, test):
+    def save_the_three_dataset(self, train, validation, test):
         # TODOx look inside
-        DatasetHelper("Train_{}".format(config.run_id), config.dataset_path).save(train)
-        DatasetHelper("Validation_{}".format(config.run_id), config.dataset_path).save(validation)
-        DatasetHelper("Test_{}".format(config.run_id), config.dataset_path).save(test)
+        DatasetHelper("Train_{}".format(self.user_args.run_id), config.dataset_path).save(train)
+        DatasetHelper("Validation_{}".format(self.user_args.run_id), config.dataset_path).save(validation)
+        DatasetHelper("Test_{}".format(self.user_args.run_id), config.dataset_path).save(test)
 
 
 class Test:
@@ -324,26 +326,83 @@ class Test:
         self.load_model()
 
     def predict(self):
-        time_starting = utility.log_time_start(self.user_args.mode)
+        time_starting = MainHelper.log_time_start("predict")
 
         x_np = self.dataset.x_np
         file_names = self.dataset.file_names
 
-        final_result = {}
         predict_result = self.model.predict(x_np)
+        self.my_logger.info("[+] tflearn finish predicting. Start finalizing result!")
+        # predict_result_with_file_name = zip(file_names, predict_result)
 
-        self.my_logger.warning("Stop predicting because starting from this point forward coudd be wrong. "
-                               "Please start debugging!")
-        exit()
+        # self.my_logger.warning("Stop predicting because starting from this point forward coudd be wrong. "
+        #                        "Please start debugging!")
+        # exit()
 
-        # TODO be careful. Starting from here could be wrong
-        predict_result = utility.preprocess_predict_result(predict_result)  # TODOx look inside
-        # TODO change the name of method save_predict_result
-        utility.save_predict_result(predict_result, file_names, final_result)  # TODOx look inside
-        final_result = utility.finalize_result(final_result)  # TODOx look inside
-        utility.save_final_result(final_result)  # TODOx look inside
+        # TODOx be careful. Starting from here could be wrong
+        # predict_result = utility.preprocess_predict_result(predict_result)  # TODOx look inside
+        # TODOx change the name of method save_predict_result
+        final_result = self.group_slices_of_same_song(predict_result, file_names)  # TODOx look inside
+        finalized_result = self.finalize_result(final_result)  # TODOx look inside
+        self.save_finalized_result(finalized_result)  # TODOx look inside
 
-        utility.log_time_end(self.user_args.mode, time_starting)
+        MainHelper.log_time_end(self.user_args.mode, time_starting)
+
+    @staticmethod
+    def find_max_genre(results):
+        probability_for_each_genre = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, }
+        for result in results:
+            for index, probability in enumerate(result):
+                probability_for_each_genre[index + 1] += probability
+
+        final_genre = list(probability_for_each_genre.keys())[0]
+        max_probability = probability_for_each_genre[final_genre]
+
+        for genre, probability_for_a_genre in probability_for_each_genre.items():
+            if probability_for_a_genre > max_probability:
+                final_genre = genre
+                max_probability = probability_for_a_genre
+
+        return final_genre  # TODOx
+
+    def finalize_result(self, final_result: Dict[str, Sequence[list]]) -> Dict[str, int]:
+        finalized_results = {}
+        file_names = list(final_result.keys())
+        for filename in file_names:
+            results = final_result[filename]
+            genre = self.find_max_genre(results)  # TODOx task look inside
+            finalized_results[filename] = genre
+        return finalized_results  # TODOx
+
+    @staticmethod
+    def process_file_name(file_name):
+        split_result = file_name.split("_")  # 1_4728348676381658827.png_23.png
+        return split_result[0], split_result[1], split_result[2]  # TODOx
+
+    def group_slices_of_same_song(self, predict_results: Sequence[list],
+                                  file_names: Sequence[str]) -> Dict[str, Sequence[list]]:
+        # TODOx debug value of all variables in this method
+        final_result = {}
+        for i in range(len(predict_results)):
+            predict_result = predict_results[i]
+            file_name = file_names[i]
+            # fixmeX process_file_name
+            genre, file_name, slice_id = self.process_file_name(file_name)
+            exit()
+            if file_name not in final_result:
+                final_result[file_name] = []
+            result_for_a_song = final_result[file_name]
+            result_for_a_song.append(predict_result)
+        return final_result
+
+    def save_finalized_result(self, final_result):
+        # fixmeX make the name of the test set used saved
+        with open(config.predict_result_path + "{}_{}.csv".format(self.user_args.run_id,
+                                                                  self.user_args.mode), mode='w') as f:
+            csv_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            csv_writer.writerow(["Id", "Genre"])
+            for file_name, genre in final_result.items():
+                csv_writer.writerow([file_name, genre])
 
     def load_model(self):
         self.my_logger.info("[+] Loading weights...")
@@ -351,7 +410,7 @@ class Test:
         self.my_logger.info("[+] Weights loaded! ✅")
 
     def evaluate(self):
-        time_starting = utility.log_time_start(self.user_args.mode)
+        time_starting = MainHelper.log_time_start(self.user_args.mode)
 
         test_X = self.dataset.x_np
         test_y = self.dataset.y_np
@@ -359,4 +418,4 @@ class Test:
         testAccuracy = self.model.evaluate(test_X, test_y)[0]
         self.my_logger.info("[+] Test accuracy: {} ".format(testAccuracy))
 
-        utility.log_time_end(self.user_args.mode, time_starting)
+        MainHelper.log_time_end(self.user_args.mode, time_starting)

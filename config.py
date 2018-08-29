@@ -44,7 +44,7 @@ pixel_per_second = 50
 desired_slice_size = pixel_per_second * 3
 slice_size = 128  # Slice parameters - this will be the size the original image is resized to
 slices_per_genre_ratio = 1.0  # TODOx be careful. THis might cause memory error latter
-slices_per_genre_ratio_each_genre = {1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 1, 9: 1, 10: 1, }
+slices_per_genre_ratio_each_genre = {1: 1, 2: 1, 3: 1, 4: 1, 5: 1, 6: 1, 7: 1, 8: 0.5, 9: 1, 10: 1, }
 
 # Dataset parameters
 validation_ratio = 0.3
