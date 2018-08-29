@@ -334,7 +334,6 @@ class Test:
         predict_result = self.model.predict(x_np)
         self.my_logger.info("[+] tflearn finish predicting. Start finalizing result!")
         # predict_result_with_file_name = zip(file_names, predict_result)
-
         # self.my_logger.warning("Stop predicting because starting from this point forward coudd be wrong. "
         #                        "Please start debugging!")
         # exit()
@@ -366,43 +365,50 @@ class Test:
         return final_genre  # TODOx
 
     def finalize_result(self, final_result: Dict[str, Sequence[list]]) -> Dict[str, int]:
+        self.my_logger.info("[+] Start finalize result!")
         finalized_results = {}
         file_names = list(final_result.keys())
         for filename in file_names:
             results = final_result[filename]
             genre = self.find_max_genre(results)  # TODOx task look inside
             finalized_results[filename] = genre
+        self.my_logger.info("[+] Done finalize result!")
         return finalized_results  # TODOx
 
     @staticmethod
     def process_file_name(file_name):
         split_result = file_name.split("_")  # 1_4728348676381658827.png_23.png
-        return split_result[0], split_result[1], split_result[2]  # TODOx
+        return split_result[0], split_result[1], split_result[2][:-4]  # TODOx
 
     def group_slices_of_same_song(self, predict_results: Sequence[list],
                                   file_names: Sequence[str]) -> Dict[str, Sequence[list]]:
         # TODOx debug value of all variables in this method
+        self.my_logger.info("[+] Start group slices of same song!")
         final_result = {}
         for i in range(len(predict_results)):
             predict_result = predict_results[i]
             file_name = file_names[i]
             # fixmeX process_file_name
             genre, file_name, slice_id = self.process_file_name(file_name)
-            exit()
+
             if file_name not in final_result:
                 final_result[file_name] = []
             result_for_a_song = final_result[file_name]
             result_for_a_song.append(predict_result)
+        self.my_logger.info("[+] Done group slices of same song!")
         return final_result
 
     def save_finalized_result(self, final_result):
         # fixmeX make the name of the test set used saved
-        with open(config.predict_result_path + "{}_{}.csv".format(self.user_args.run_id,
-                                                                  self.user_args.mode), mode='w') as f:
+        path_to_save_result = config.predict_result_path + "{}_{}.csv".format(self.user_args.run_id,
+                                                                              self.user_args.mode)
+        self.my_logger.info("[+] Saving result to {}!".format(path_to_save_result))
+        with open(path_to_save_result, mode='w') as f:
             csv_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             csv_writer.writerow(["Id", "Genre"])
             for file_name, genre in final_result.items():
                 csv_writer.writerow([file_name, genre])
+        self.my_logger.info("[+] Done result to {}!".format(path_to_save_result))
 
     def load_model(self):
         self.my_logger.info("[+] Loading weights...")
