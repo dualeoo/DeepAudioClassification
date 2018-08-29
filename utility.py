@@ -14,11 +14,11 @@ my_logger = logging.getLogger(config.my_logger_name)
 
 
 class UserArg:
-    def __init__(self, mode, debug, model_name, run_id_for_mode_test):
+    def __init__(self, mode, debug, model_name, run_id):
         self.mode = mode
         self.debug = debug
         self.model_name = model_name
-        self.run_id_for_mode_test = run_id_for_mode_test
+        self.run_id = run_id
 
 
 def process_file_name(file_name):
@@ -119,25 +119,38 @@ def handle_args():
     parser.add_argument("--debug", default=False, action="store_true")
     parser.add_argument("--model-name", dest='model_name')
     # parser.add_argument("--cpu", type=int, dest='number_of_cpu', default=number_of_workers)
-    parser.add_argument("mode", help="Trains or tests the CNN", choices=["train", "test", "slice", "sliceTest",
-                                                                         config.real_test_prefix])
-    parser.add_argument("--run-id-for-test",
+    parser.add_argument("mode", help="Trains or tests the CNN",
+                        choices=["train", "test", "slice", "sliceTest", config.real_test_prefix,
+                                 config.name_of_mode_create_spectrogram,
+                                 config.name_of_mode_create_spectrogram_for_test_data])
+    parser.add_argument("--run-id",
                         help="This is the run_in corresponding with the test dataset using with mode test",
-                        dest="run_id_for_mode_test")
+                        dest="run_id")
 
     args = parser.parse_args()
     mode_arg = args.mode
     debug = args.debug
     model_name = args.model_name
-    run_id_for_mode_test = args.run_id_for_mode_test
+    run_id_user_supply = args.run_id
 
-    if "train" == mode_arg:
-        if not model_name:
+    if not model_name:
+        if "train" == mode_arg:
+            # note i removed the if not and simpy keep the statment under it?
+            # if not model_name:
             model_name = config.model_name_config
-    elif "test" == mode_arg or config.real_test_prefix == mode_arg:
-        if not model_name:
-            raise Exception('Model name must include in test and testReal mode')
-    return UserArg(mode_arg, debug, model_name, run_id_for_mode_test)
+        elif "test" == mode_arg or config.real_test_prefix == mode_arg:
+            raise Exception('Model name must include in test and {} mode'.format(config.real_test_prefix))
+        else:
+            # note assume don't need model name for other modes
+            pass
+
+    if not run_id_user_supply:
+        if mode_arg in ["test", "slice", "sliceTest", "train"]:
+            raise Exception('Run ID must include in test, slice, and sliceTest modes ')
+        else:
+            run_id_user_supply = config.run_id
+
+    return UserArg(mode_arg, debug, model_name, run_id_user_supply)
 
 
 def print_intro():
@@ -184,9 +197,10 @@ def log_time_helper(mode, is_starting=True):
     return current_time
 
 
-def get_gernes_and_classes():
-    genres = os.listdir(config.path_to_slices_for_training)
-    genres = [genre for genre in genres if os.path.isdir(config.path_to_slices_for_training + genre)]
+def get_gernes_and_classes(active_config):
+    # fixme
+    genres = os.listdir(active_config.path_to_slices_for_training)
+    genres = [genre for genre in genres if os.path.isdir(active_config.path_to_slices_for_training + genre)]
     nb_classes = len(genres)
     return genres, nb_classes
 

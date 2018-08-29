@@ -1,10 +1,6 @@
 # TODO recheck this section one day
 import datetime
 
-unknown_genre = "unknownGenre"
-real_test_prefix = "testReal"
-log_file_name = "myLog.log"
-
 
 def get_current_time():
     current_time_l = datetime.datetime.now()
@@ -12,6 +8,11 @@ def get_current_time():
     return current_time_string_l, current_time_l  # fixmex (second element returned)
 
 
+unknown_genre = "unknownGenre"
+real_test_prefix = "testReal"
+name_of_mode_create_spectrogram = "spectrogram"
+name_of_mode_create_spectrogram_for_test_data = "spectrogramTest"
+log_file_name = "myLog.log"
 current_time_string, current_time = get_current_time()
 run_id = "MusicGenres_" + current_time_string
 my_logger_name = run_id
@@ -25,11 +26,13 @@ real_test_dataset_name = "{}_X_{}".format(real_test_prefix, run_id)
 path_to_raw_data = "Data/train/"
 path_to_test_data = "Data/test/"
 
-path_to_spectrogram = "Data/Spectrograms/"
-path_to_test_spectrogram = "Data/SpectrogramsTest/"
+path_to_spectrogram = "Data/Spectrograms/{}/"
+# fixmeX
+path_to_test_spectrogram = "Data/SpectrogramsTest/{}"
 
-path_to_slices_for_training = "Data/Slices/"
-path_to_slices_for_testing = "Data/SlicesTest/"
+# fixmeX
+path_to_slices_for_training = "Data/Slices/{}/"
+path_to_slices_for_testing = "Data/SlicesTest/{}/"
 
 dataset_path = "Data/Dataset/"
 

@@ -13,7 +13,6 @@ from PIL import Image
 
 import config
 import utility
-from config import run_id
 from dataset import GetDataset, DatasetHelper, Dataset
 from model import create_model
 from utility import check_path_exist, log_time_start, log_time_end
@@ -33,7 +32,7 @@ class CreateSpectrogram:
     def get_genre(self, file_path):
         # TODOx re-implement
         # audiofile = eyed3.load(filename)
-        # TODO be careful, how comes I comment out the line above?
+        # TODOx be careful, how comes I comment out the line above?
         filename = (file_path.split("/"))[2]
         genre = self.labelDic[filename]
         if genre:
@@ -91,10 +90,11 @@ class CreateSpectrogram:
         pool = multiprocessing.Pool(processes=os.cpu_count())
         workers = []
         for index, filename in enumerate(files):
-            my_logger.info("Creating spectrogram for file {}/{}...".format(index + 1, nb_files))
-            new_filename = self.get_spectrogram_name(filename, genres_id, index)  # TODOx look inside
-            # TODO show comes path is Data/train/MusicGenres_20180828_2320_6_1_8339573394770541951
-            file = Path('{}{}'.format(self.path_to_audio, new_filename))
+            # my_logger.info("Creating spectrogram for file {}/{}...".format(index + 1, nb_files))
+            new_filename = self.get_spectrogram_name(filename, genres_id)  # TODOx look inside
+            # fixmeX how comes path is Data/train/MusicGenres_20180828_2320_6_1_8339573394770541951
+            # fixmeX it would always create new file
+            file = Path('{}{}'.format(self.spectrograms_path, new_filename))
             if file.exists():
                 my_logger.info("{} already exists so no spectrogram create!".format(new_filename))
             else:
@@ -104,21 +104,21 @@ class CreateSpectrogram:
             if self.user_args.debug and index >= config.numberOfTrainRawFilesToProcessInDebugMode:
                 break
 
+        index = 0
         for worker in workers:
+            my_logger.info("Creating spectrogram for file {}/{}...".format(index + 1, nb_files))
             worker.wait()
+            index += 1
 
-    def get_spectrogram_name(self, filename, genres_id, index):
+    def get_spectrogram_name(self, filename, genres_id):
         mode = self.user_args.mode
         genre_id = None
-        file_id = None
-        if "slice" in mode:
+        if config.name_of_mode_create_spectrogram in mode:
             genre_id = self.get_genre(self.path_to_audio + filename)
             genres_id[genre_id] = genres_id[genre_id] + 1 if genre_id in genres_id else 1
-            file_id = genres_id[genre_id]
-        elif "sliceTest" in mode:
-            file_id = index + 1
+        elif config.name_of_mode_create_spectrogram_for_test_data in mode:
             genre_id = config.unknown_genre
-        new_filename = "{}_{}_{}_{}".format(config.run_id, genre_id, file_id, filename[:-4])
+        new_filename = "{}_{}".format(genre_id, filename[:-4])
         return new_filename
 
     @staticmethod
@@ -146,21 +146,19 @@ class CreateSlice:
 
         # TODOx make this multiprocessing
         pool = multiprocessing.Pool(processes=multiprocessing.cpu_count())
-
+        workers = []
         for filename in file_names:
             if filename.endswith(".png"):
                 # TODOx be careful with the create spectrogram multi processing just now, i didnt join (wait)
-                pool.apply_async(self.slice_spectrogram, (filename,),
-                                 callback=lambda: my_logger.info(
-                                     "Finish slicing for file {}/{}".format(index, len(file_names))))
-                # workers.append((worker, index))
+                worker = pool.apply_async(self.slice_spectrogram, (filename,))
+                workers.append((worker, index))
                 index += 1
 
-        # for w in workers:
-        #     worker = w[0]
-        #     index = w[1]
-        #     worker.wait()
-        #     my_logger.info("Finish slicing for file {}/{}".format(index, len(file_names)))
+        for w in workers:
+            worker = w[0]
+            index = w[1]
+            worker.wait()
+            my_logger.info("Finish slicing for file {}/{}".format(index, len(file_names)))
 
         pool.close()
         pool.join()
@@ -169,10 +167,11 @@ class CreateSlice:
     # Author_TODO Improvement - Make sure we don't miss the end of the song
     def slice_spectrogram(self, filename):
         # fixmeX after I change name of spectrogram
+        # fixmeX
         split_results = filename.split("_")
-        genre = split_results[1]  # {run ID}_{genre id}_{song id}_{song file name}.png
-        song_id = split_results[2]
-        song_name = split_results[3]
+        genre = split_results[0]  # {genre id}_{song file name}.png
+        # song_id = split_results[2]
+        song_name = split_results[1]
 
         # Load the full spectrogram
         img = Image.open(self.spectrograms_path + filename)
@@ -193,17 +192,18 @@ class CreateSlice:
             start_pixel = slice_id * self.desired_slice_size
             img_tmp = img.crop((start_pixel, 1, start_pixel + self.desired_slice_size, self.desired_slice_size + 1))
             # TODOx why [:-4]? to remove .png
-            img_tmp.save(self.slices_path + "{}_{}_{}_{}_{}.png".format(run_id, genre, song_id, song_name, slice_id))
+            img_tmp.save(self.slices_path + "{}_{}_{}.png".format(genre, song_name, slice_id))
 
 
 class Training:
-    def __init__(self, user_args, genres, my_logger, path_to_model, nb_classes) -> None:
+    def __init__(self, user_args, genres, path_to_model, nb_classes, active_config) -> None:
         self.user_args = user_args
         self.genres = genres
         self.my_logger = my_logger
         self.path_to_model = path_to_model
         self.nb_classes = nb_classes
         self.model = create_model(nb_classes, config.slice_size)
+        self.active_config = active_config
 
     def start_train(self):
         time_starting = log_time_start(self.user_args.mode)
@@ -237,10 +237,13 @@ class Training:
             # TODOx dataset_name in this case?
             dataset_name = "{}_{}".format(genre, config.run_id)
             # TODOx look inside
+            # fixmeX
+            # TODOx run inspection
             dataset = GetDataset(genre, config.slice_size, config.dataset_path, dataset_name
-                                 , config.path_to_slices_for_training, self.user_args, self.genres).start()
+                                 , self.active_config.path_to_slices_for_training, self.user_args, self.genres).start()
 
             # fixmeX
+            # TODO look inside
             DatasetHelper(dataset_name, config.dataset_path).save(dataset)
             genre_index += 1
 
@@ -316,7 +319,7 @@ class Training:
 
 
 class Test:
-    def __init__(self, user_args, dataset, my_logger, model, path_to_model) -> None:
+    def __init__(self, user_args, dataset, model, path_to_model) -> None:
         self.user_args = user_args
         self.dataset = dataset
         self.my_logger = my_logger
