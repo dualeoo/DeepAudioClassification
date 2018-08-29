@@ -425,3 +425,44 @@ class Test:
         self.my_logger.info("[+] Test accuracy: {} ".format(testAccuracy))
 
         MainHelper.log_time_end(self.user_args.mode, time_starting)
+
+    def evaluate_whole_song(self):
+        self.my_logger.info("[+] Start evaluating song prediction result")
+        predicted_result = self.load_predicted_result()
+        truth = self.load_truth()
+        nb_results = len(predicted_result)
+        nb_correct = 0
+        for song_name, song_genre in predicted_result.items():
+            true_genre = truth[song_name]
+            # TODO be careful number and string of genre
+            if true_genre == song_genre:
+                nb_correct += 1
+        accuracy = nb_correct / nb_results
+        self.my_logger.info("The model accurately predict {}% of songs!".format(accuracy * 100))
+
+    def load_predicted_result(self):
+        path_to_save_result = config.predict_result_path + "{}_{}.csv".format(self.user_args.run_id,
+                                                                              self.user_args.mode)
+        return self.load_csv_file(path_to_save_result,
+                                  "[+] Loading predicted result to memory ({})!",
+                                  "[+] Finish loading predicted result to memory!", True)
+
+    def load_truth(self):
+        return self.load_csv_file(config.train_data_label_path,
+                                  "[+] Loading truth to memory ({})!",
+                                  "[+] Finish loading truth to memory!", False)
+
+    def load_csv_file(self, path_to_csv_file, begin_message, end_message, contain_header):
+        self.my_logger.info(begin_message.format(path_to_csv_file))
+        result = {}
+        with open(path_to_csv_file, mode='r') as f:
+            csv_reader = csv.reader(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            if contain_header:
+                next(csv_reader)
+            for row in csv_reader:
+                # fixme for trainLabel, doesnt have header row
+                song_name = row[0][:-4]
+                genre = row[1]
+                result[song_name] = genre
+        self.my_logger.info(end_message)
+        return result

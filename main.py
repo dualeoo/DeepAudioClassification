@@ -17,7 +17,8 @@ def start_test():
     test_task = Test(user_args, dataset, model, path_to_model)
     # TODO remove comment out
     # test_task.evaluate()
-    test_task.predict()
+    # test_task.predict()
+    test_task.evaluate_whole_song()
 
 
 def start_test_real():
