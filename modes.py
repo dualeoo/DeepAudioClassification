@@ -182,8 +182,8 @@ class CreateSlice:
         # width - desiredSliceSize  # TODOpro Why do this? I comment out it. Be careful
 
         # Create path if not existing
-        slice_path = self.slices_path + "{}/".format(genre)
-        check_path_exist(slice_path)
+        path_slice_of_specific_genre = self.slices_path + "{}/".format(genre)
+        check_path_exist(path_slice_of_specific_genre)
 
         # For each sample
         for slice_id in range(nb_samples):
@@ -192,7 +192,7 @@ class CreateSlice:
             start_pixel = slice_id * self.desired_slice_size
             img_tmp = img.crop((start_pixel, 1, start_pixel + self.desired_slice_size, self.desired_slice_size + 1))
             # TODOx why [:-4]? to remove .png
-            img_tmp.save(self.slices_path + "{}_{}_{}.png".format(genre, song_name, slice_id))
+            img_tmp.save(path_slice_of_specific_genre + "{}_{}_{}.png".format(genre, song_name, slice_id))
 
 
 class Training:
@@ -235,16 +235,12 @@ class Training:
             self.my_logger.info("[+] Creating dataset for genre {} ({}/{})".format(genre, genre_index,
                                                                                    number_of_genres))
             # TODOx dataset_name in this case?
-            dataset_name = "{}_{}".format(genre, config.run_id)
+            dataset_name = "{}_{}".format(genre, self.active_config.run_id)
             # TODOx look inside
             # fixmeX
             # TODOx run inspection
-            dataset = GetDataset(genre, config.slice_size, config.dataset_path, dataset_name
-                                 , self.active_config.path_to_slices_for_training, self.user_args, self.genres).start()
-
-            # fixmeX
-            # TODO look inside
-            DatasetHelper(dataset_name, config.dataset_path).save(dataset)
+            GetDataset(genre, config.slice_size, config.dataset_path, dataset_name
+                       , self.active_config.path_to_slices_for_training, self.user_args, self.genres).start()
             genre_index += 1
 
         # TODOx look inside

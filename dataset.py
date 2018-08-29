@@ -1,6 +1,7 @@
 import logging
 import multiprocessing as mp
 import os
+import pickle
 from random import shuffle
 
 import numpy as np
@@ -29,9 +30,9 @@ class DatasetHelper:
 
     def save(self, dataset: Dataset):
         my_logger.info("[+] Saving dataset {} ".format(self.dataset_name))
-        np.pickle.dump(dataset.x_np, open(self.name_of_x, "wb"), protocol=4)
-        np.pickle.dump(dataset.y_np, open(self.name_of_y, "wb"), protocol=4)
-        np.pickle.dump(dataset.file_names, open(self.name_of_file_name, "wb"), protocol=4)
+        pickle.dump(dataset.x_np, open(self.name_of_x, "wb"), protocol=4)
+        pickle.dump(dataset.y_np, open(self.name_of_y, "wb"), protocol=4)
+        pickle.dump(dataset.file_names, open(self.name_of_file_name, "wb"), protocol=4)
         my_logger.info("[+] Dataset saved! 💾")
 
     def load(self):
@@ -73,11 +74,14 @@ class GetDataset:
         # TODOx task check this
         if not os.path.isfile(self.dataset_helper.name_of_x):
             my_logger.info("[+] {} is not created. So create it!".format(self.dataset_name))
-            return self.create(slice_file_names, slices_per_genre)
+            dataset = self.create(slice_file_names, slices_per_genre)
+            DatasetHelper(self.dataset_name, config.dataset_path).save(dataset)
+            return
         else:
-            my_logger.info("[+] Using existing dataset")
+            my_logger.info("[+] {} is already created. Using existing dataset".format(self.dataset_name))
             # TODOx task rework on this
-            return self.dataset_helper.load()
+            # fixmeX why load it?
+            return
 
     def get_slices_per_genre(self, slice_file_names):
         total_number_of_files = None
