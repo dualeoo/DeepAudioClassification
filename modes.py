@@ -114,10 +114,10 @@ class CreateSpectrogram:
     def get_spectrogram_name(self, filename, genres_id):
         mode = self.user_args.mode
         genre_id = None
-        if config.name_of_mode_create_spectrogram in mode:
+        if config.name_of_mode_create_spectrogram == mode:
             genre_id = self.get_genre(self.path_to_audio + filename)
             genres_id[genre_id] = genres_id[genre_id] + 1 if genre_id in genres_id else 1
-        elif config.name_of_mode_create_spectrogram_for_test_data in mode:
+        elif config.name_of_mode_create_spectrogram_for_test_data == mode:
             genre_id = config.unknown_genre
         new_filename = "{}_{}".format(genre_id, filename[:-4])
         return new_filename

@@ -12,11 +12,12 @@ my_logger = logging.getLogger(config.my_logger_name)
 
 
 class UserArg:
-    def __init__(self, mode, debug, model_name, run_id):
+    def __init__(self, mode, debug, model_name, run_id, run_id_real_test):
         self.mode = mode
         self.debug = debug
         self.model_name = model_name
         self.run_id = run_id
+        self.run_id_real_test = run_id_real_test
 
 
 def set_up_logging():
@@ -56,33 +57,44 @@ def handle_args():
                                  config.name_of_mode_create_spectrogram,
                                  config.name_of_mode_create_spectrogram_for_test_data])
     parser.add_argument("--run-id",
-                        help="This is the run_in corresponding with the test dataset using with mode test",
+                        help="This is the run_id required to create slices from spectrogram, "
+                             "create dataset from slices. For more information, look at note Dung chinh model tim duoc"
+                             "de predict song in Onenote",
                         dest="run_id")
+    parser.add_argument("--run-id-test-real",
+                        help="This is the run_in required to load real-test-dataset "
+                             "when run in mode = {} ".format(config.real_test_prefix),
+                        dest="run_id_real_test")
 
     args = parser.parse_args()
     mode_arg = args.mode
     debug = args.debug
     model_name = args.model_name
     run_id_user_supply = args.run_id
+    run_id_real_test = args.run_id_real_test
 
     if not model_name:
         if "train" == mode_arg:
             # note i removed the if not and simpy keep the statment under it?
             # if not model_name:
             model_name = config.model_name_config
-        elif "test" == mode_arg or config.real_test_prefix == mode_arg:
+        elif mode_arg in ["test", config.real_test_prefix]:
             raise Exception('Model name must include in test and {} mode'.format(config.real_test_prefix))
         else:
             # note assume don't need model name for other modes
             pass
 
     if not run_id_user_supply:
-        if mode_arg in ["test", "slice", "sliceTest", "train"]:
+        # note be care ful, adding config.real_test_prefix to below might be wrong
+        if mode_arg in ["test", "slice", "sliceTest", "train", config.real_test_prefix]:
             raise Exception('Run ID must include in test, slice, and sliceTest modes ')
         else:
             run_id_user_supply = config.run_id
 
-    return UserArg(mode_arg, debug, model_name, run_id_user_supply)
+    if not run_id_real_test:
+        if mode_arg in [config.real_test_prefix]:
+            raise Exception('run_id_real_test must include in {} modes!'.format(config.real_test_prefix))
+    return UserArg(mode_arg, debug, model_name, run_id_user_supply, run_id_real_test)
 
 
 def print_intro():

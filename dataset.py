@@ -81,8 +81,8 @@ class GetDataset:
         else:
             my_logger.info("[+] {} is already created. Using existing dataset".format(self.dataset_name))
             # TODOx task rework on this
-            # fixmeX why load it?
-            return
+            # fixmeX why load it? because testReal requires it
+            return self.dataset_helper.load()
 
     def get_slices_per_genre(self, slice_file_names):
         total_number_of_files = None

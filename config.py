@@ -28,7 +28,7 @@ path_to_test_data = "Data/test/"
 
 path_to_spectrogram = "Data/Spectrograms/{}/"
 # fixmeX
-path_to_test_spectrogram = "Data/SpectrogramsTest/{}"
+path_to_test_spectrogram = "Data/SpectrogramsTest/{}/"
 
 # fixmeX
 path_to_slices_for_training = "Data/Slices/{}/"
