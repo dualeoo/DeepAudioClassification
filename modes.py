@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import csv
 import logging
+import math
 import multiprocessing
 import os
 from pathlib import Path
 from random import shuffle
 from subprocess import Popen, PIPE, STDOUT
-from typing import Sequence, Dict
+from typing import Dict, List
 
 import eyed3
 import numpy as np
@@ -329,26 +330,30 @@ class Test:
         time_starting = MainHelper.log_time_start("predict")
 
         x_np = self.dataset.x_np
-        file_names = self.dataset.file_names
+        # file_names = self.dataset.file_names
 
-        predict_result = self.model.predict(x_np)
-        self.my_logger.info("[+] tflearn finish predicting. Start finalizing result!")
-        # predict_result_with_file_name = zip(file_names, predict_result)
-        # self.my_logger.warning("Stop predicting because starting from this point forward coudd be wrong. "
-        #                        "Please start debugging!")
-        # exit()
+        starting_index = 0
+        ending_index = config.nb_data_points_per_patch
+        x_np_size = x_np.size
+        nm_of_batches = math.ceil(x_np_size / config.nb_data_points_per_patch)
+        final_result = {}
 
-        # TODOx be careful. Starting from here could be wrong
-        # predict_result = utility.preprocess_predict_result(predict_result)  # TODOx look inside
-        # TODOx change the name of method save_predict_result
-        final_result = self.group_slices_of_same_song(predict_result, file_names)  # TODOx look inside
+        for i in range(nm_of_batches):
+            self.my_logger.info("[+] Start predicting batch {}/{}".format(i + 1, nm_of_batches))
+            # note can be wrong
+            active_x_np = x_np[starting_index:ending_index, ...]
+            predict_result = self.model.predict(active_x_np)
+            self.group_slices_of_same_song(predict_result, final_result)
+            self.my_logger.info("[+] Finish predicting batch {}/{}".format(i + 1, nm_of_batches))
+
+        self.my_logger.info("[+] tflearn finish predicting!")
         finalized_result = self.finalize_result(final_result)  # TODOx look inside
         self.save_finalized_result(finalized_result)  # TODOx look inside
 
         MainHelper.log_time_end(self.user_args.mode, time_starting)
 
     @staticmethod
-    def find_max_genre(results):
+    def find_max_genre(results: List[List[float]]) -> int:
         probability_for_each_genre = {1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, 9: 0, 10: 0, }
         for result in results:
             for index, probability in enumerate(result):
@@ -364,7 +369,7 @@ class Test:
 
         return final_genre  # TODOx
 
-    def finalize_result(self, final_result: Dict[str, Sequence[list]]) -> Dict[str, int]:
+    def finalize_result(self, final_result: Dict[str, List[List[float]]]) -> Dict[str, int]:
         self.my_logger.info("[+] Start finalize result!")
         finalized_results = {}
         file_names = list(final_result.keys())
@@ -380,14 +385,14 @@ class Test:
         split_result = file_name.split("_")  # 1_4728348676381658827.png_23.png
         return split_result[0], split_result[1], split_result[2][:-4]  # TODOx
 
-    def group_slices_of_same_song(self, predict_results: Sequence[list],
-                                  file_names: Sequence[str]) -> Dict[str, Sequence[list]]:
+    def group_slices_of_same_song(self, predict_results: List[List[float]],
+                                  final_result: Dict[str, List[List[float]]]):
         # TODOx debug value of all variables in this method
         self.my_logger.info("[+] Start group slices of same song!")
-        final_result = {}
+        # final_result = {}
         for i in range(len(predict_results)):
             predict_result = predict_results[i]
-            file_name = file_names[i]
+            file_name = self.dataset.file_names[i]
             # fixmeX process_file_name
             genre, file_name, slice_id = self.process_file_name(file_name)
 
@@ -396,9 +401,8 @@ class Test:
             result_for_a_song = final_result[file_name]
             result_for_a_song.append(predict_result)
         self.my_logger.info("[+] Done group slices of same song!")
-        return final_result
 
-    def save_finalized_result(self, final_result):
+    def save_finalized_result(self, final_result: Dict[str, int]):
         # fixmeX make the name of the test set used saved
         path_to_save_result = config.predict_result_path + "{}_{}.csv".format(self.user_args.run_id,
                                                                               self.user_args.mode)
@@ -434,7 +438,7 @@ class Test:
         nb_correct = 0
         for song_name, song_genre in predicted_result.items():
             true_genre = truth[song_name]
-            # TODO be careful number and string of genre
+            # TODOx be careful number and string of genre
             if true_genre == song_genre:
                 nb_correct += 1
         accuracy = nb_correct / nb_results
@@ -460,7 +464,7 @@ class Test:
             if contain_header:
                 next(csv_reader)
             for row in csv_reader:
-                # fixme for trainLabel, doesnt have header row
+                # fixmeX for trainLabel, doesnt have header row
                 song_name = row[0][:-4]
                 genre = row[1]
                 result[song_name] = genre

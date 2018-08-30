@@ -82,3 +82,6 @@ log_file_mode = 'a'
 
 # Rest
 number_of_slices_before_informing_users = 1000
+
+# Predict
+nb_data_points_per_patch = 256

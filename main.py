@@ -109,7 +109,7 @@ if __name__ == "__main__":
 
     if "test" == user_args.mode:
         # TODOx rewrite to predict the WHOLE song
-        # TODO evaluate the accuracy of the song predicted result
+        # TODOx evaluate the accuracy of the song predicted result
         # TODOx check
         start_test()
         exit()
