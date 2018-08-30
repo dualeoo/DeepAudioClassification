@@ -29,7 +29,9 @@ def start_test_real():
     dataset = GetDataset(config.unknown_genre, config.slice_size, config.dataset_path, dataset_name,
                          active_config.path_to_slices_for_testing, user_args, genres).start()
     test_task = Test(user_args, dataset, model, path_to_model)
-    test_task.predict()
+    # TODO remove comment out
+    # test_task.predict()
+    test_task.rearrange_result_file()
 
 
 def check_all_paths_exist():

@@ -318,7 +318,7 @@ class Training:
 
 
 class Test:
-    def __init__(self, user_args, dataset, model, path_to_model) -> None:
+    def __init__(self, user_args: MainHelper.UserArg, dataset, model, path_to_model: str) -> None:
         self.user_args = user_args
         self.dataset = dataset
         self.my_logger = my_logger
@@ -333,18 +333,21 @@ class Test:
         # file_names = self.dataset.file_names
 
         starting_index = 0
-        ending_index = config.nb_data_points_per_patch
-        x_np_size = x_np.size
-        nm_of_batches = math.ceil(x_np_size / config.nb_data_points_per_patch)
+        ending_index = config.nb_data_points_per_batch
+        x_np_size = x_np.shape[0]
+        nm_of_batches = math.ceil(x_np_size / config.nb_data_points_per_batch)
         final_result = {}
 
         for i in range(nm_of_batches):
             self.my_logger.info("[+] Start predicting batch {}/{}".format(i + 1, nm_of_batches))
-            # note can be wrong
+            # noteX can be wrong
+            # TODOx increase batch size next time predict, probably 1024
             active_x_np = x_np[starting_index:ending_index, ...]
             predict_result = self.model.predict(active_x_np)
-            self.group_slices_of_same_song(predict_result, final_result)
+            self.group_slices_of_same_song(predict_result, final_result, i)
             self.my_logger.info("[+] Finish predicting batch {}/{}".format(i + 1, nm_of_batches))
+            starting_index += config.nb_data_points_per_batch
+            ending_index += config.nb_data_points_per_batch
 
         self.my_logger.info("[+] tflearn finish predicting!")
         finalized_result = self.finalize_result(final_result)  # TODOx look inside
@@ -386,13 +389,15 @@ class Test:
         return split_result[0], split_result[1], split_result[2][:-4]  # TODOx
 
     def group_slices_of_same_song(self, predict_results: List[List[float]],
-                                  final_result: Dict[str, List[List[float]]]):
+                                  final_result: Dict[str, List[List[float]]],
+                                  batch_number):
         # TODOx debug value of all variables in this method
-        self.my_logger.info("[+] Start group slices of same song!")
+        self.my_logger.info("[+] Start group slices of same song for batch {}!".format(batch_number + 1))
         # final_result = {}
         for i in range(len(predict_results)):
             predict_result = predict_results[i]
-            file_name = self.dataset.file_names[i]
+            corresponding_file_id = batch_number * config.nb_data_points_per_batch + i
+            file_name = self.dataset.file_names[corresponding_file_id]
             # fixmeX process_file_name
             genre, file_name, slice_id = self.process_file_name(file_name)
 
@@ -404,7 +409,8 @@ class Test:
 
     def save_finalized_result(self, final_result: Dict[str, int]):
         # fixmeX make the name of the test set used saved
-        path_to_save_result = config.predict_result_path + "{}_{}.csv".format(self.user_args.run_id,
+        run_id_for_predicted_result_file = self.get_run_id_for_predicted_result_file()
+        path_to_save_result = config.predict_result_path + "{}_{}.csv".format(run_id_for_predicted_result_file,
                                                                               self.user_args.mode)
         self.my_logger.info("[+] Saving result to {}!".format(path_to_save_result))
         with open(path_to_save_result, mode='w') as f:
@@ -413,6 +419,13 @@ class Test:
             for file_name, genre in final_result.items():
                 csv_writer.writerow([file_name, genre])
         self.my_logger.info("[+] Done result to {}!".format(path_to_save_result))
+
+    def get_run_id_for_predicted_result_file(self):
+        if self.user_args.mode == "test":
+            run_id_for_predicted_result_file = self.user_args.run_id
+        else:
+            run_id_for_predicted_result_file = self.user_args.run_id_real_test
+        return run_id_for_predicted_result_file
 
     def load_model(self):
         self.my_logger.info("[+] Loading weights...")
@@ -444,8 +457,10 @@ class Test:
         accuracy = nb_correct / nb_results
         self.my_logger.info("The model accurately predict {}% of songs!".format(accuracy * 100))
 
-    def load_predicted_result(self):
-        path_to_save_result = config.predict_result_path + "{}_{}.csv".format(self.user_args.run_id,
+    def load_predicted_result(self) -> Dict[str, int]:
+        # fixmeX when I use this method to load predicted_result of testReal
+        run_id_for_predicted_result = self.get_run_id_for_predicted_result_file()
+        path_to_save_result = config.predict_result_path + "{}_{}.csv".format(run_id_for_predicted_result,
                                                                               self.user_args.mode)
         return self.load_csv_file(path_to_save_result,
                                   "[+] Loading predicted result to memory ({})!",
@@ -469,4 +484,36 @@ class Test:
                 genre = row[1]
                 result[song_name] = genre
         self.my_logger.info(end_message)
+        return result
+
+    def rearrange_result_file(self):
+        # TODOx look inside
+        predicted_results = self.load_predicted_result()
+        sample_submission = self.load_sample_submission()
+
+        path_to_save_result = config.predict_result_path \
+                              + "{}_{}_rearranged.csv".format(self.get_run_id_for_predicted_result_file(),
+                                                              self.user_args.mode)
+
+        self.my_logger.info("[+] Saving result to {}!".format(path_to_save_result))
+        with open(path_to_save_result, mode='w') as f:
+            csv_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            csv_writer.writerow(["Id", "Genre"])
+            for file_name in sample_submission:
+                csv_writer.writerow([file_name, predicted_results[file_name]])
+        self.my_logger.info("[+] Done saving result to {}!".format(path_to_save_result))
+
+    def load_sample_submission(self) -> List[str]:
+        # TODOx
+        path_to_csv_file = config.path_to_sample_submission
+        self.my_logger.info("[+] Start loading submission result to memory ({})".format(path_to_csv_file))
+        result = []
+        with open(path_to_csv_file, mode='r') as f:
+            csv_reader = csv.reader(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            if True:
+                next(csv_reader)
+            for row in csv_reader:
+                file_name = row[0]
+                result.append(file_name)
+        self.my_logger.info("[+] Finish loading submission result")
         return result

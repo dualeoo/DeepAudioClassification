@@ -37,6 +37,7 @@ path_to_slices_for_testing = "Data/SlicesTest/{}/"
 dataset_path = "Data/Dataset/"
 
 train_data_label_path = "Data/train.csv"
+path_to_sample_submission = "Data/sample_submission.csv"
 predict_result_path = "Data/PredictResult/"
 
 # Spectrogram resolution and Slices
@@ -84,4 +85,4 @@ log_file_mode = 'a'
 number_of_slices_before_informing_users = 1000
 
 # Predict
-nb_data_points_per_patch = 256
+nb_data_points_per_batch = 1024
