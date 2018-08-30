@@ -9,5 +9,5 @@ RUN apt-get update -y && apt-get install -y \
  && rm -rf /var/lib/apt/lists/*
 
 
-ADD pip-requirements.txt /pip-requirements.txt
-RUN pip install -r /pip-requirements.txt
+ADD requirements.txt /requirements.txt
+RUN pip install -r /requirements.txt
