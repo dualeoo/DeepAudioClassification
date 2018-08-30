@@ -20,14 +20,15 @@ class UserArg:
         self.run_id_real_test = run_id_real_test
 
 
-def set_up_logging():
+def set_up_logging(user_args: UserArg):
     formatter = logging.Formatter(config.logging_formatter, config.time_formatter)
 
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.DEBUG)
     root_logger.handlers[0].setLevel(logging.WARNING)
 
-    file_handler_for_root_logger = logging.FileHandler(config.root_logger_file_name, config.log_file_mode)
+    file_handler_for_root_logger = logging.FileHandler(config.root_logger_file_name,
+                                                       config.log_file_mode)
     file_handler_for_root_logger.setLevel(logging.DEBUG)
     file_handler_for_root_logger.setFormatter(formatter)
 
@@ -37,7 +38,7 @@ def set_up_logging():
     console.setLevel(logging.DEBUG)
     # console.setFormatter(formatter)
 
-    file_handler = logging.FileHandler(config.my_logger_file_name, config.log_file_mode)
+    file_handler = logging.FileHandler(config.my_logger_file_name.format(user_args.mode), config.log_file_mode)
     file_handler.setLevel(logging.DEBUG)
     file_handler.setFormatter(formatter)
 

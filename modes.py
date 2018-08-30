@@ -500,7 +500,7 @@ class Test:
             csv_writer = csv.writer(f, delimiter=',', quotechar='"', quoting=csv.QUOTE_MINIMAL)
             csv_writer.writerow(["Id", "Genre"])
             for file_name in sample_submission:
-                csv_writer.writerow([file_name, predicted_results[file_name]])
+                csv_writer.writerow([file_name, predicted_results[file_name[:-4]]])
         self.my_logger.info("[+] Done saving result to {}!".format(path_to_save_result))
 
     def load_sample_submission(self) -> List[str]:
